@@ -14,3 +14,6 @@
 
 #define ON 1
 #define OFF 0
+
+//Nombre de caracters del password
+#define NCHARS_PASSWD 4

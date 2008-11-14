@@ -6,6 +6,10 @@
 
 char sw6,sw7;
 char bloc;
+char show_hour;
+char passwd[NCHARS_PASSWD];
+
+inline void printc_xy(int x, int y, char c);
 
 #int_global
 void
@@ -53,8 +57,52 @@ main()
 	  break;
 
 	case REPOS:
-	  break;
+	  mostrar_hora = OFF;
+	  //Clean display???
 
+	  while (bloc == REPOS)
+	    {	    
+	      char passwd = 1;
+	      char c;
+	      char buffer[NCHARS_PASSWD];
+	      int i;
+
+	      // sw1 = OFF; //ALERTA
+
+	      //Get Passwd
+	      for (i=0; i<NCHARS_PASSWD && !sw1; i++)
+		{
+		  do c = keyscan();
+		  while (c==0x80 && !sw1);
+		 
+		  if (!sw1)
+		    {
+		      buffer[i] = c;
+		      lcd_gotoxy(0+i,0); //alerta +i
+		      lcd_putc('*');
+		    }
+		}
+	      for (i=0; i<NCHARS_PASSWD && passwd; i++)
+		  if (buffer[i] != passwd[i] || sw1) passwd = 0;
+	      
+	      if (passwd)
+		  bloc = CONTROLS;
+	      else 
+		{
+		  if (sw1 == ON)
+		    bloc = LLIURE;
+		  else
+		    {
+		      lcd_gotoxy(0,1);
+		      lcd_putc('F');
+		      lcd_putc('A');
+		      lcd_putc('I');
+		      lcd_putc('L');
+		    }
+		}
+	    }
+	  break;
+	  
 	case CONTROLS:
 	  //FELIP
 	  break;
@@ -72,4 +120,39 @@ main()
 	}
     }
 }
- 
+
+/**Pinta una lletra a una posicio de sa pantalla*/
+inline void printc_xy(int x, int y, char c)
+{
+  lcd_gotoxy(x,y);
+  lcd_putc(c);
+}
+
+/**Agafa n caracters del teclat i els posa dins buffer*/
+/*inline void get_key_string(char *buffer, int nchars)
+{
+  int i = nchars;
+  char c;
+
+  for (i=0; i<nchars; i++)
+    {
+      do c = keyscan();
+      while (c==0x80);
+
+      buffer[i] = c;
+    }
+    }*/
+
+/*
+void
+printf_xy (int x, int y, char *buffer)
+{
+  //Pre: x : {0,15}
+  //     y : {0,1}
+   
+  int i;
+  lcd_gotoxy (x, y);
+  for (i = 0; buffer[i] != '\0'; i++)
+    lcd_putc (buffer[i]);
+}
+*/
