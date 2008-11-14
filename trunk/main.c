@@ -1,10 +1,11 @@
 #include <16F876_CCS.h>
+#include <constants.h>
 #include <lcd_lab.c>
 #include <teclat_lab.c>
 #org 0x1F00, 0x1FFF void loader16F876(void) {}
 
-char sw7;
-
+char sw6,sw7;
+char bloc;
 
 #int_global
 void
@@ -14,6 +15,10 @@ ext_int()
     {
       sw7 = ON;
     }
+  /* Rellotge:
+     actualitzar segons;
+     comprovar sw6;
+   */
   INTF = 0;
 }
 
@@ -22,6 +27,8 @@ void
 main()
 {
   sw7 = OFF;
+  bloc = REPOS; 
+  GIE = 0; 
   
   while (1)
     {
@@ -29,6 +36,7 @@ main()
 	{
 	case LLIURE:
 	  /*
+	    FELIP
 	  - bandera (led D7) =  ON
 	  - indicador de tarifa = OFF
 	  - mostrar_hora = ON
@@ -48,12 +56,15 @@ main()
 	  break;
 
 	case CONTROLS:
+	  //FELIP
 	  break;
 
 	case OCUPAT:
+	  //ROBERT
 	  break;
 
 	case IMPORT:
+	  //ROBERT
 	  break;
 
 	default:
