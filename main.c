@@ -42,6 +42,32 @@ ext_int()
   INTF = 0;
 }
 
+#define SUPLEMENT_AERUPORT	'A'
+#define SUPLEMENT_MALETA	'B'
+#define SUPLEMENT_MOLL		'C'
+#define SUPLEMENT_ASPECIAL	'D'
+#define SUPLEMENT_FIRA		'#'
+#define SUPLEMENT_GOS		'*'
+
+static inline uint16_t
+taula_de_suplements (char k)
+{
+  switch (k)
+    {
+    case SUPLEMENT_AERUPORT:
+      return 300;
+    case SUPLEMENT_MALETA:
+      return 90;
+    case SUPLEMENT_MOLL:
+      return 200;
+    case SUPLEMENT_ASPECIAL:
+      return 300;
+    case SUPLEMENT_FIRA:
+      return 200;
+    case SUPLEMENT_GOS:
+      return 100;
+    }
+}
 
 enum estats_bandera
   {
@@ -187,6 +213,25 @@ main()
 
 	case IMPORT:
 	  //ROBERT
+	  char ja_tenim_maleta = 0;
+	  led_bandera (BANDERA_PAMPALLUGUES);
+	  tarifa = 'I';
+	  printc_xy (X_TARIFA, Y_TARIFA, tarifa);
+
+	  while (! premut_pujar_bandera)
+	    {
+	      char k;
+	      k = keyScan ();  /* NOOOOO0OOOOOooooooooooOOOOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+	      if (k == 'A')
+		{
+		  if (ja_tenim_maleta)
+		    continue;
+		  else
+		    ja_tenim_maleta = 1;
+		}
+	      import += taula_de_suplements (k);
+	    }
+	  led_bandera (BANDERA_ON);  /* FIXME: encenem aqui o en entrar a lliure? */
 	  break;
 
 	default:
