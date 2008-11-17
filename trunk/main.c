@@ -7,7 +7,8 @@
 char sw6,sw7;
 char bloc;
 char show_hour;
-char passwd[NCHARS_PASSWD];
+const char passwd[] = "PITOTE";
+#define NCHARS_PASSWD sizeof(passwd)
 
 inline void printc_xy(int x, int y, char c);
 
