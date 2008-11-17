@@ -28,6 +28,12 @@ ext_int()
 	  hora_en_segons++;
 	  fraccio_de_segon = 0;
 	}
+
+      if (bandera_pampallugues && (fraccio_de_pampalluga++ > TICS_PER_PAMPALLUGA))
+	{
+	  d7 = !d7;
+	  fraccio_de_pampalluga = 0;
+	}
     }
 
   /*
@@ -36,10 +42,28 @@ ext_int()
   INTF = 0;
 }
 
+
+enum estats_bandera
+  {
+    BANDERA_ON,
+    BANDERA_OFF,
+    BANDERA_PAMPALLUGUES,
+  };
+
 static inline void
-led_bandera (char on)
+led_bandera (char st)
 {
-  d7 = on;
+  switch (st)
+    {
+    case BANDERA_ON:
+    case BANDERA_OFF:
+      d7 = st;
+      bandera_pampallugues = 0;
+      break;
+    case BANDERA_PAMPALLUGUES:
+      bandera_pampallugues = 1;
+      break;
+    }
 }
 
 static inline void
@@ -148,7 +172,7 @@ main()
 
 	case OCUPAT:
 	  //ROBERT
-	  led_bandera (0);  /* FIXME: apaguem aqui o en sortir de lliure? */
+	  led_bandera (BANDERA_OFF);  /* FIXME: apaguem aqui o en sortir de lliure? */
 	  lcd_clear ();
 	  printc_xy (X_TARIFA, Y_TARIFA, tarifa);
 	  import = PREU_FIX_BAIXADA_DE_BANDERA;
