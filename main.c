@@ -20,13 +20,48 @@ ext_int()
     {
       sw7 = ON;
     }
-  /* Rellotge:
-     actualitzar segons;
+
+  if (som_en_una_interrupcio_de_rellotge)
+    {
+      if (comptador_hora && (fraccio_de_segon++ > TICS_PER_SEGON))
+	{
+	  hora_en_segons++;
+	  fraccio_de_segon = 0;
+	}
+    }
+
+  /*
      comprovar sw6;
    */
   INTF = 0;
 }
 
+static inline void
+led_bandera (char on)
+{
+  d7 = on;
+}
+
+static inline void
+lcd_clear ()
+{
+  char i, y;
+  for (i = 0; i < LCD_SIZE_X; i++)
+    for (y = 0; y < LCD_SIZE_Y; y++)
+      printc_xy (x, y, ' ');
+}
+
+static inline void
+printf_hora (int x, int y, char *s)
+{
+  /* FIXME: rapinyar codi practica anterior */
+}
+
+static inline void
+printf_import (int x, int y, char *s)
+{
+  /* FIXME: 3/4 del mateix */
+}
 
 void
 main()
@@ -106,10 +141,24 @@ main()
 	  
 	case CONTROLS:
 	  //FELIP
+
+	  // per al modul OKUPAT em cal que CONTROLS activi `comptador_hora' tant
+	  // bon punt l'hora s'hagi introduit -- robert
 	  break;
 
 	case OCUPAT:
 	  //ROBERT
+	  led_bandera (0);  /* FIXME: apaguem aqui o en sortir de lliure? */
+	  lcd_clear ();
+	  printc_xy (X_TARIFA, Y_TARIFA, tarifa);
+	  import = PREU_FIX_BAIXADA_DE_BANDERA;
+	  comptador_import = ON;  /* Demanem a l'RSI que incrementi `import' */
+	  while (! SORTIR_D_OCUPAT)  /* FIXME: la condicio esta per definir */
+	    {
+	      printf_xy_import (X_IMPORT, Y_IMPORT, import);
+	      printf_xy_hora (X_HORA, Y_HORA, hora_en_segons);
+	    }
+	  comptador_import = OFF;
 	  break;
 
 	case IMPORT:
