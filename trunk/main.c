@@ -7,8 +7,6 @@
 char sw6,sw7;
 char bloc;
 char show_hour;
-const char passwd[] = "PITOTE";
-#define NCHARS_PASSWD sizeof(passwd)
 
 inline void printc_xy(int x, int y, char c);
 
@@ -42,12 +40,6 @@ ext_int()
   INTF = 0;
 }
 
-#define SUPLEMENT_AERUPORT	'A'
-#define SUPLEMENT_MALETA	'B'
-#define SUPLEMENT_MOLL		'C'
-#define SUPLEMENT_ASPECIAL	'D'
-#define SUPLEMENT_FIRA		'#'
-#define SUPLEMENT_GOS		'*'
 
 static inline uint16_t
 taula_de_suplements (char k)
@@ -68,13 +60,6 @@ taula_de_suplements (char k)
       return 100;
     }
 }
-
-enum estats_bandera
-  {
-    BANDERA_ON,
-    BANDERA_OFF,
-    BANDERA_PAMPALLUGUES,
-  };
 
 static inline void
 led_bandera (char st)
@@ -127,6 +112,7 @@ main()
 	case LLIURE:
 	  /*
 	    FELIP
+	   led_bandera (BANDERA_ON);
 	  - bandera (led D7) =  ON
 	  - indicador de tarifa = OFF
 	  - mostrar_hora = ON
@@ -144,11 +130,11 @@ main()
 
 	case REPOS:
 	  mostrar_hora = OFF;
-	  //Clean display???
+	  lcd_clear();
 
 	  while (bloc == REPOS)
 	    {	    
-	      char passwd = 1;
+	      char pass_ok = 1;
 	      char c;
 	      char buffer[NCHARS_PASSWD];
 	      int i;
@@ -168,10 +154,10 @@ main()
 		      lcd_putc('*');
 		    }
 		}
-	      for (i=0; i<NCHARS_PASSWD && passwd; i++)
-		  if (buffer[i] != passwd[i] || sw1) passwd = 0;
+	      for (i=0; i<NCHARS_PASSWD && pass_ok; i++)
+		  if (buffer[i] != passwd[i] || sw1) pass_ok = 0;
 	      
-	      if (passwd)
+	      if (pass_ok)
 		  bloc = CONTROLS;
 	      else 
 		{
@@ -231,7 +217,6 @@ main()
 		}
 	      import += taula_de_suplements (k);
 	    }
-	  led_bandera (BANDERA_ON);  /* FIXME: encenem aqui o en entrar a lliure? */
 	  break;
 
 	default:
