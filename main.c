@@ -591,7 +591,7 @@ void
 get_time_input ()
 {
   //Aprofitament de codi de la practica anterior
-  /*Bucle per introduïr dades al cronometre, quan haguem acabat
+  /*Bucle per introduÃ¯r dades al cronometre, quan haguem acabat
     polsarem el sw7. Si pitjem la tecla C es
     fan net les dades introduides.
     El temps introduit sortira a la banda esquerra de la pantalla, 
@@ -624,7 +624,7 @@ get_time_input ()
 	   else if (x!=0) x--;
 	   printc_xy(x,0,'0');
 
-	  //Si volem començar de nou, descomentar les 2 seguents linies
+	  //Si volem comenÃ§ar de nou, descomentar les 2 seguents linies
 	  //x = 0;
 	  // lcd_clear();
 	}
