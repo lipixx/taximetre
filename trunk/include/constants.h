@@ -7,7 +7,9 @@
 ///////////////////////////////////////////////////////////////////
 
 #define LCD_SIZE_X 16
-#define LCD_SIZE_Y 2
+#define LCD_SIZE_Y  2
+#define X_HORA	   10
+#define Y_HORA      1
 
 #define LLIURE		0
 #define REPOS		1
@@ -29,8 +31,9 @@
 #define SUPLEMENT_FIRA		'#'
 #define SUPLEMENT_GOS		'*'
 
-#define TICS_PER_SEGON	    10000
-#define TICS_PER_PAMPALLUGA 10000
-#define NCHARS_PASSWD sizeof(passwd)
+#define TICS_PER_SEGON	    78125
+#define TICS_PER_PAMPALLUGA TICS_PER_SEGON * 2
 
+#define NCHARS_PASSWD sizeof(passwd)
 const char passwd[] = "PITOTE";
+const char hora[] = "00:00";
