@@ -1,0 +1,63 @@
+Variables i descripció:
+------------------------
+
+################ ¡¡¡  WARNING !!! ############################
+
+**printf_xy_hora() serveix per imprimir la hora al display, pero
+haurem de cridar a aquesta funcio cada segon. Es molt costos
+si ho fem dins un while perque la crida tantes vegades com iteracions
+a una velocitat sobredimensional => ALT CONSUM	
+
+**Els const char no es poden canviar o si?, son cte!?
+
+################ Descripcio variables ########################
+
+char bloc: Identifica cada bloc del programa. Es troba definit a constants.h
+
+char show_hour: Serveix per, a la RSI de rellotge, saber si s'ha de mostrar
+     		l'hora o no al display.
+
+sw1:5: Identifiquen l'estat dels interruptors que es comproven periodicament
+       dins la RSI de rellotge
+
+sw7: Estat del switch que genera la INT externa per el port RB0
+
+passwd[i]: String que conté el password.
+
+
+LCD:
+y = linia 0:1 (0 baix, 1 dalt)
+x = columna 0:15
+
+
+################# INTERRUPCIONS I BITS #######################
+
+GIE = Enable/Disable interrupcions
+TRISA/B = 1 -- PORTB IN
+TRISA/B = 0 -- PORTB OUT
+
+PORTB per interrupcions implica PORTB d'entrada
+INTEDG = OPTIONREG <6>
+RB0/INT {
+	INTEDG = 1 - per flanc ascendent
+	INTEDG = 0 - per flanc descendent
+	INTF = 1 - Rebem interrupcio, s'ha de netejar a la RSI
+	INTE = 1/0 - Enable/Disable interrupcio
+	}
+
+RB4:7 {
+      Un canvi a qualsevol dels ports 4:7 de input genera int
+      RBIF = 1 - Rebem interrupcio, s'ha de netejar a la RSI
+      RBIE = 1/0 - Enable/Disable interrupcio
+      }
+
+TMR0	{
+	Overflow del timer FFh-00h provoca interrupcio
+	PS2, PS1, PS0 = Bits de PREESCALER dins de OPTION_REG
+	     	      	(Veure DATASHEET pag 19)
+	PSA = 0 - L'assignem al TMR0 en lloc del Watchdog(seria 1).
+	TMR0 = Valor del timer en tics, escriure aqui suposa inhibir
+	       l'increment durant les 2 instruccions seguents.
+	TMR0IF = 1 - Rebem flag interrupcio, s'ha de netejar a la RSI
+	TMR0IE = 1/0 - Enable/Disable interrupcio
+	}
