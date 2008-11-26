@@ -40,7 +40,6 @@ static inline void printf_import(int x, int y, char * s);
 static inline void printf_hora(int x, int y, char * s);
 static inline void lcd_clear();
 static inline void led_bandera (char status);
-static inline uint16_t taula_de_suplements (char k);
 
 
 //Codi
@@ -103,24 +102,28 @@ ext_int()
 
 }
 
+static inline char int_to_flag (char i)
+{
+  return (1 << i);
+}
 
-static inline uint16_t
-taula_de_suplements (char k)
+static inline int
+suplement_ascii_to_index (char k)
 {
   switch (k)
     {
-    case SUPLEMENT_AERUPORT:
-      return 300;
-    case SUPLEMENT_MALETA:
-      return 90;
-    case SUPLEMENT_MOLL:
-      return 200;
-    case SUPLEMENT_ASPECIAL://-------------------------S'HA DE MIRAR LA DATA?------------------*WARN*
-      return 300;
-    case SUPLEMENT_FIRA:
-      return 200;
-    case SUPLEMENT_GOS:
-      return 100;
+    case 'A':
+      return SUPLEMENT_AERUPORT;
+    case 'B':
+      return SUPLEMENT_MALETA;
+    case 'C':
+      return SUPLEMENT_MOLL;
+    case 'D':
+      return SUPLEMENT_ASPECIAL;
+    case '#':
+      return SUPLEMENT_FIRA;
+    case '*':
+      return SUPLEMENT_GOS;
     }
 }
 
@@ -465,7 +468,7 @@ main()
 
 	case IMPORT:
 	  //ROBERT
-	  char ja_tenim_maleta = 0;
+	  char suplements_emprats = 0;
 	  led_bandera (BANDERA_PAMPALLUGUES);
 	  tarifa = 4; //Posara una I al display de 7 segments ---(es confon amb 1)----------*FIXME*
 	  print_tarifa (tarifa);
@@ -474,18 +477,23 @@ main()
 	  while ((PORTA & 0x01) == 0)
 	    {
 	      char k;
-	      k = keyScan ();
+	      k = suplement_ascii_to_index (keyScan ());
 
-	      // ES ALREVES!!!!!!!!, SI JA TENIM MALETA EN PODEM SUMAR MES
-	      //EL QUE NO PODEM FER ES APLICAR ALTRES SUPLEMENTSSSSSSSSSSSSSSSS-------------*FIXME*
-	      if (k == 'A')
+	      if (k != SUPLEMENT_MALETA)
 		{
-		  if (ja_tenim_maleta)
+                  char j;
+		  /* La gràcia d'aquesta collonada és que `suplements_que_ja_hem_activat'
+		     només ens ocupa un byte (el codi de flagificació ja ocupa més d'un
+		     byte, però de memòria de codi anem sobrats).  */
+                  j = int_to_flag (k);
+		  if ((suplements_emprats & j) != 0)
 		    continue;
 		  else
-		    ja_tenim_maleta = 1;
+		    suplements_emprats |= j;
 		}
-	      import += taula_de_suplements (k);
+	      import += suplement_index_to_preu[k];
+
+	      k = 0;
 	      while (k != 0x80) k = keyScan();
 	    }
 	  break;

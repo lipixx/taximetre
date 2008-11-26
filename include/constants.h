@@ -24,12 +24,26 @@
 #define BANDERA_ON	     1
 #define BANDERA_PAMPALLUGUES 2
 
-#define SUPLEMENT_AERUPORT	'A'
-#define SUPLEMENT_MALETA	'B'
-#define SUPLEMENT_MOLL		'C'
-#define SUPLEMENT_ASPECIAL	'D'
-#define SUPLEMENT_FIRA		'#'
-#define SUPLEMENT_GOS		'*'
+/* Important: l'enum i l'array que hi ha a continuació han d'estar en el
+   mateix ordre.  */
+enum suplements
+  {
+    SUPLEMENT_AERUPORT,
+    SUPLEMENT_MALETA,
+    SUPLEMENT_MOLL,
+    SUPLEMENT_ASPECIAL,
+    SUPLEMENT_FIRA,
+    SUPLEMENT_GOS,
+  };
+static const uint16_t suplement_index_to_preu[] =
+  {
+    300,	/* aeruport */
+    90,		/* maleta */
+    200,	/* moll */
+    300,	/* aspecial */  //-------------------------S'HA DE MIRAR LA DATA?------------------*WARN*
+    200,	/* fira */
+    100,	/* gos */
+  };
 
 #define TICS_PER_SEGON	    78125
 #define TICS_PER_PAMPALLUGA TICS_PER_SEGON * 2
