@@ -8,7 +8,7 @@
 //Variables
 char sw6,sw7;
 char bloc;
-char band_pampallugues;
+char bandera_pampallugues;
 char comptador_hora;
 char compta_analogic;
 int fraccio_pampalluga;
@@ -63,7 +63,7 @@ ext_int()
 	  fraccio_de_segon = 0;
 	}
 
-      if (band_pampallugues && (fraccio_pampalluga++ > TICS_PER_PAMPALLUGA))
+      if (bandera_pampallugues && (fraccio_pampalluga++ > TICS_PER_PAMPALLUGA))
 	{
 	  if ((PORTB & 0x20) == 0)
 	    PORTB = PORTB | 0x20;
@@ -76,6 +76,8 @@ ext_int()
 	{
 	  compta_analogic = 1;
 	}
+
+      TMR0IF = 0;
     }
 
   if (ADIF == 1 && ADIE == 1)//---------------------------------------------------------------*FIXME*
@@ -222,7 +224,7 @@ main()
                  //RA4 Analog Input
 
   //Variables
-  band_pampallugues = OFF;
+  bandera_pampallugues = OFF;
   sw7 = OFF;
   bloc = REPOS;
   comptador_hora = ON;
