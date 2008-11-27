@@ -81,7 +81,7 @@ ext_int ()
 	      fraccio_de_pampalluga = 0;
 	    }
 
-	  if (sw6 == 1)		//Comprovam el sw6, si activat començem a comptar
+	  if (sw6 == 1)		//Comprovam el sw6, si activat comenÃ§em a comptar
 	    {
 	      compta_analogic = 1;
 	    }
