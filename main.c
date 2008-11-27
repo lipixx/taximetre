@@ -484,7 +484,7 @@ main()
 	      if (k != SUPLEMENT_MALETA)
 		{
                   char j;
-		  /* La gràcia d'aquesta collonada és que `suplements_que_ja_hem_activat'
+		  /* La gracia d'aquesta collonada és que `suplements_que_ja_hem_activat'
 		     només ens ocupa un byte (el codi de flagificació ja ocupa més d'un
 		     byte, però de memòria de codi anem sobrats).  */
                   j = int_to_flag (k);
@@ -581,7 +581,10 @@ int get_preu_kbd()
   sw7 = OFF;
   retorn = 0;
   scanf_xy(0,1,preu,5);
-  retorn = preu[0]*1000 + preu[1]*100 + preu[3]*10 + preu[4] - (53328); //-65536-tamany INT---*FIXME*
+  retorn = ((long int) (preu[0]-'0'))*1000 
+    + ((long int) (preu[1]-'0'))*100 
+    + ((long int) (preu[3]-'0'))*10 
+    + ((long int) (preu[4]-'0'));
 }
 
 void
