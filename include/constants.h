@@ -15,14 +15,16 @@
 #define REPOS		1
 #define CONTROLS	2
 #define OCUPAT		3
-#define IMPORT		4
+#define IMPORT_		4
 
 #define ON	1
 #define OFF	0
 
 #define BANDERA_OFF	     0
 #define BANDERA_ON	     1
-#define BANDERA_PAMPALLUGUES 2
+#define BANDERA_PAMPALLUGUES_ 2
+
+typedef long int uint16_t;
 
 /* Important: l'enum i l'array que hi ha a continuació han d'estar en el
    mateix ordre.  */
@@ -33,8 +35,9 @@ enum suplements
     SUPLEMENT_MOLL,
     SUPLEMENT_ASPECIAL,
     SUPLEMENT_FIRA,
-    SUPLEMENT_GOS,
+    SUPLEMENT_GOS
   };
+
 static const uint16_t suplement_index_to_preu[] =
   {
     300,	/* aeruport */
@@ -42,12 +45,15 @@ static const uint16_t suplement_index_to_preu[] =
     200,	/* moll */
     300,	/* aspecial */  //-------------------------S'HA DE MIRAR LA DATA?------------------*WARN*
     200,	/* fira */
-    100,	/* gos */
+    100		/* gos */
   };
 
-#define TICS_PER_SEGON	    78125
-#define TICS_PER_PAMPALLUGA TICS_PER_SEGON * 2
+#define TICS_PER_SEGON	    305
+#define TICS_PER_PAMPALLUGA TICS_PER_SEGON
 
 #define NCHARS_PASSWD sizeof(passwd)
 const char passwd[] = "PITOTE";
 const char hora[] = "00:00";
+
+#define X_IMPORT	0
+#define Y_IMPORT	1

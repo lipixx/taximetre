@@ -3,12 +3,10 @@ Variables i descripció:
 
 ################ ¡¡¡  WARNING !!! ############################
 
-**printf_xy_hora() serveix per imprimir la hora al display, pero
-haurem de cridar a aquesta funcio cada segon. Es molt costos
-si ho fem dins un while perque la crida tantes vegades com iteracions
-a una velocitat sobredimensional => ALT CONSUM	
-
-**Els const char no es poden canviar o si?, son cte!?
+* EL DIA NOMES TE 12 HORES
+* PRINT_TARIFA amb una taula
+* tarifa es un index
+* fer matriu de tarifes
 
 ################ Descripcio variables ########################
 
