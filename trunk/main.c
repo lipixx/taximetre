@@ -643,7 +643,7 @@ get_time_input ()
      i si polsem una tecla incorrecte sortira un missatge a la 
      dreta de la segona fila */
 
-  char ant, i, x;
+  char i, x;
 ini_funcio_gtime:
 
   x = 0;
