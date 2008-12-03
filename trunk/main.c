@@ -11,14 +11,18 @@ unsigned char fracc_de_fracc_de_segon;
 //-----------------------------------------------------------------------------------------*FIXME*
 #define sw1 (!!(PORTA & 0x01))
 #define sw6 (!!(PORTA & 0x20))
-char sw7;
+short sw7;
+short am_pm;
 char bloc;
-char bandera_pampallugues;
-char comptador_hora;
-char compta_analogic;
+short bandera_pampallugues;
+short comptador_hora;
+short compta_analogic;
 uint16_t hora_en_segons;
+
 char tarifa;
-int ganancies_avui, kms_avui, consum_100km;	//4 digits maxim.
+short index_tarifa1_2;
+
+int ganancies_avui, kms_avui, consum_100km;	//4 digits maxim, amb 8 bits kk
 uint16_t fraccio_de_segon, fraccio_de_pampalluga;
 int import;
 char comptador_import;
@@ -29,23 +33,23 @@ char comptador_import;
   tarifaN[2] = Hora d'espera
   tarifa3[3] = Suplement horari nocturn
  */
-int tarifa1[3], tarifa2[3], tarifa3[4];
-
+uint16_t tarifa1_2[2][3];
+uint16_t tarifa3[4];
 
 //Capceleres de funcions
 #define printf_xy(x,y,s)   { char tmp[] = s; _printf_xy(x,y,tmp); }
-void _printf_xy (int x, int y, char *buffer);
-
-inline void printc_xy (int x, int y, char c);
-inline static void scanf_xy (int x, int y, char *buffer, int len);
-void get_time_input ();
-void printf_int (int x, int y, int s);
-int get_preu_kbd ();
+static inline void _printf_xy (char x, char y, char *buffer);
+static inline void printc_xy (char x, char y, char c);
+static inline void scanf_xy (char x, char y, char *buffer, char len);
+static inline void get_time_input ();
+static inline int get_preu_kbd ();
 static inline void print_tarifa (char i);
 static inline void printf_import (int x, int y, char *s);
 static inline void printf_hora (int x, int y, char *s);
 static inline void lcd_clear ();
 static inline void led_bandera (char status);
+inline static void printf_int (int x, int y, int s);
+inline void suplement_ascii_to_index(char k);
 
 
 //Codi
@@ -66,7 +70,18 @@ ext_int ()
 	  if (comptador_hora && (fraccio_de_segon++ > TICS_PER_SEGON))
 	    {
 	      //Pensar a Actualitzar DATA!!, i si canviem de dia resetejar-------------------------*WARN*
-	      //facturacio del dia i km's (i mitja consum/100km?)
+	      //facturacio del dia i km's (i mitja consum/100km?) bit de AM/PM!!!
+	      
+	      if (!(hora_en_segons%43200))
+		//Si han passat 12h canvi am_pm
+		am_pm++;
+
+	      if (am_pm) //Si som les 00:00hAM, nou dia
+		{
+		  ganancies_avui = 0;
+		  kms_avui = 0;
+		  //falta res?
+		}
 	      hora_en_segons++;
 	      fraccio_de_segon = 0;
 	    }
@@ -83,7 +98,7 @@ ext_int ()
 
 	  if (sw6 == 1)		//Comprovam el sw6, si activat començem a comptar
 	    {
-	      compta_analogic = 1;
+	      compta_analogic = ON;
 	    }
 	}
       TMR0IF = 0;
@@ -102,7 +117,7 @@ ext_int ()
       //Hem rebut final de conversio
       //Llegir resultat en els regs ADRESH:ADRESL
 
-      if (compta_analogic == 1)	//----
+      if (compta_analogic == ON)	//----
 	{
 	  if (comptador_import == 1)
 	    import++;		//--------
@@ -162,7 +177,8 @@ led_bandera (char status)
 static inline void
 lcd_clear ()
 {
-  char i, y;
+  char i ;
+  short y;
 
   lcd_gotoxy (0, 0);
 
@@ -186,34 +202,15 @@ printf_xy_import (int x, int y, char *s)
 static inline void
 print_tarifa (char i)
 {
-  char activa_bandera = 0;
+  short activa_bandera = OFF;
 
   if ((PORTB & 0x20) != 0)
-    activa_bandera = 1;
+    activa_bandera = ON;
 
-  switch (i)
-    {
-    case 0:			//No pinta res
-      PORTB = 0x00;
-      break;
-    case 1:			//Pinta un 1
-      PORTB = 0x06;
-      break;
-    case 2:			//Pinta un 2
-      PORTB = 0x5A;
-      break;
-    case 3:			//Pinta un 3
-      PORTB = 0x4E;
-      break;
-    case 4:			//Pinta una I.. es confon amb 1 --------------------------------------------------*FIXME*
-      PORTB = 0x06;
-      break;
-    default:
-      break;
-    }
+  PORTB = taula_print_tarifa[i];
 
   //Restaurem l'estat de la bandera
-  if (activa_bandera == 1)
+  if (activa_bandera)
     PORTB = PORTB | 0x20;
 }
 
@@ -248,6 +245,7 @@ main ()
   consum_100km = 0;
   fraccio_de_segon = 0;
   fraccio_de_pampalluga = 0;
+  am_pm = 0;
 
   //Interrupcions//
   //Timer preescaler de 256:
@@ -330,7 +328,7 @@ main ()
 	    char intent = 0;
 	    char c;
 	    char buffer[NCHARS_PASSWD];
-	    int i;
+	    char i;
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "Entra password:");
@@ -417,27 +415,27 @@ main ()
 	    //Set Preus
 	    lcd_clear ();
 	    printf_xy (0, 1, "T1 - B.b.");
-	    tarifa1[0] = get_preu_kbd ();
+	    tarifa1_2[0][0] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T1 - P/Km");
-	    tarifa1[1] = get_preu_kbd ();
+	    tarifa1_2[0][1] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T1 - H.Espera");
-	    tarifa1[2] = get_preu_kbd ();
+	    tarifa1_2[0][2] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T2 - B.b.");
-	    tarifa2[0] = get_preu_kbd ();
+	    tarifa1_2[1][0] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T2 - P/Km");
-	    tarifa2[1] = get_preu_kbd ();
+	    tarifa1_2[1][1] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T2 - H.Espera");
-	    tarifa2[2] = get_preu_kbd ();
+	    tarifa1_2[1][2] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T3 - B.b.");
@@ -508,8 +506,10 @@ main ()
 	    //Mirem estat de sw1 (pujada de bandera)
 	    while ((PORTA & 0x01) == 0)
 	      {
-		char k;
-		k = suplement_ascii_to_index (keyScan ());
+		char k = 0x80;
+		while (k == 0x80) keyScan();
+
+       		k = suplement_ascii_to_index (k);
 
 		if (k != SUPLEMENT_MALETA)
 		  {
@@ -540,7 +540,7 @@ main ()
 
 /**Pinta una lletra a una posicio de sa pantalla*/
 static inline void
-printc_xy (int x, int y, char c)
+printc_xy (char x, char y, char c)
 {
   lcd_gotoxy (x, y);
   lcd_putc (c);
@@ -550,7 +550,7 @@ static inline int
 get_preu_kbd ()
 {
   char x, i;
-  uint16_t retorn;
+  uint16_t retorn; //----------------------------retornar4chars------------FIXME
 
 ini_funcio_gpreu:
   i = 0x80;
@@ -616,16 +616,17 @@ end_gpreu:
     retorn = ((long int) (preu[0] - '0')) * 1000
       + ((long int) (preu[1] - '0')) * 100
       + ((long int) (preu[3] - '0')) * 10 + ((long int) (preu[4] - '0'));
+	return retorn;
   }
 }
 
 static inline void
-_printf_xy (int x, int y, char *buffer)
+_printf_xy (char x, char y, char *buffer)
 {
   //Pre: x : {0,15}
   //     y : {0,1}
 
-  int i;
+  char i;
   lcd_gotoxy (x, y);
   for (i = 0; buffer[i] != '\0'; i++)
     lcd_putc (buffer[i]);
@@ -645,7 +646,6 @@ get_time_input ()
 
   char i, x;
 ini_funcio_gtime:
-
   x = 0;
   printf_xy (0, 0, "00:00");
 
@@ -682,59 +682,34 @@ ini_funcio_gtime:
 	      printc_xy (15, 1, 'E');
 	      goto big_o_error;
 	    }
-
-	  //Hem de fer que no es puguin fer mes de 23:59
-
-	  switch (x)
+	  
+	  //Hem de fer que no es puguin fer mes de 12:59
+	  
+	  if ( x == 0 && i > '1')
 	    {
-	    case 0:		//Comprovacio de la desena d'hora
-	      if (i > '2')
-		{
-		  printc_xy (15, 1, 'B');
-		  goto big_o_error;
-		}
-	      break;
-
-	    case 1:		//Comprovacio de la decima d'hora
-	      {
-		char aux;
-		aux = lcd_getc (x - 1, 0);
-		if (aux == 2 && i > 3)
-		  {
-		    printc_xy (15, 1, 'B');
-		    goto big_o_error;
-		  }
-	      }
-	      break;
-
-	    case 3:		//Comprovacio de desena de minut
-	      if (i > '5')
-		{
-		  printc_xy (15, 1, 'B');
-		  goto big_o_error;
-		}
-	      break;
-
-	    default:
-	      break;
+	      printc_xy (15,1,'B');
+	      goto big_o_error;
 	    }
-
+	  
+	  if ( x == 3 && i > '5')
+	    {
+	      printc_xy (15,1,'B');
+	    }
+	  	  
 	  printc_xy (x, 0, i);
 	  x++;
-
-	  if (x == 2)
-	    x++;
+  	  if (x == 2) x++;
 	}
-
+      
     big_o_error:
       while (keyScan () != 0x80);
     }
-
+  
   //Si no estem d'acord, podem tornar a introduir hora
   sw7 = OFF;
 
 espera_confirmacio:		//Per sortir o pitjem * o pitjem sw7.
-
+  
   while (i == 0x80 || !sw7)
     i = keyScan ();		//ALERTA QUE NO SE SOLAPI--------------------------*WARN*
 
@@ -744,7 +719,7 @@ espera_confirmacio:		//Per sortir o pitjem * o pitjem sw7.
   if (i == '*')
     goto ini_funcio_gtime;
 
-  i = 0x80;
+  i = 0x80; //Qualsevol tecla s'ha pitjat, no fer res
   goto espera_confirmacio;
 
 end_gtime:
@@ -763,9 +738,9 @@ end_gtime:
   * i els posa dins el *buffer
   */
 inline static void
-scanf_xy (int x, int y, char *buffer, int len)
+scanf_xy (char x, char y, char *buffer, char len)
 {
-  int i;
+  char i;
   for (i = 0; i < len; i++)
     buffer[i] = lcd_getc (x + i, y);
 }
