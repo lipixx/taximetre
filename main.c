@@ -27,6 +27,7 @@ uint16_t fraccio_de_segon, fraccio_de_pampalluga;
 int import;
 char comptador_import;
 
+
 /*
   tarifaN[0] = Preu baixada bandera
   tarifaN[1] = Preu/KM
@@ -37,11 +38,10 @@ uint16_t tarifa1_2[2][3];
 uint16_t tarifa3[4];
 
 //Capceleres de funcions
-#define printf_xy(x,y,s)   { char tmp[] = s; _printf_xy(x,y,tmp); }
-static inline void _printf_xy (char x, char y, char *buffer);
-static inline void printc_xy (char x, char y, char c);
+#define printf_xy(x,y,s)   { lcd_gotoxy(x,y); lcd_putc(s); }
 static inline void scanf_xy (char x, char y, char *buffer, char len);
 static inline void get_time_input ();
+
 static inline int get_preu_kbd ();
 static inline void print_tarifa (char i);
 static inline void printf_import (int x, int y, char *s);
@@ -302,7 +302,7 @@ main ()
 	      //Hem de posar una tarifa obligatoriament
 	      if (tarifa == 0)
 		{
-		  printf_xy (0, 1, "Introdueix tarifa!");
+		  printf_xy (0, 1, "T?");
 		  do
 		    {
 		      if (PORTA & 0x02)
@@ -325,24 +325,18 @@ main ()
 
 	case REPOS:
 	  {
-	    char intent = 0;
 	    char c;
 	    char buffer[NCHARS_PASSWD];
 	    char i;
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "Entra password:");
+	    printf_xy (0, 1, "Pass:");
 
 	    while (bloc == REPOS)
 	      {
 		//Depenent de com estigui sw1, farem que si
 		//ens equivoquem de password, anem a LLIURE o
-		//ens quedem a REPOS per reintentar.
-		//SW1 = ON -> Possibilitat de reintents
-		//SW1 = OFF -> Nomes un intent
-
-		if (intent > 0)
-		  printf_xy (0, 0, "\0\0\0\0\0\0\0\0\0\0");
+		//a REPOS
 
 		//Get Passwd
 		for (i = 0; i < NCHARS_PASSWD; i++)
@@ -361,16 +355,9 @@ main ()
 		if (i == (NCHARS_PASSWD - 1))
 		  bloc = CONTROLS;
 		else
-		  {
 		    if (sw1 == OFF)
 		      bloc = LLIURE;
-		    else
-		      {
-			printf_xy (0, 0, "Try again!");
-			intent++;
-		      }
-		  }
-	      }
+	     }
 	  }
 	  break;
 
@@ -384,7 +371,8 @@ main ()
 	    //pressionant directament el sw7
 	    sw7 = OFF;
 	    i = 0;
-	    printf_xy (0, 1, "Nou passwd:");
+		lcd_gotoxy(0,1);
+		lcd_putc("NPass:");
 
 	    while (!sw7 && i < NCHARS_PASSWD)
 	      {
@@ -405,7 +393,7 @@ main ()
 		passwd[i] = tmp[i];
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "Nova hora:");
+	    printf_xy (0, 1, "Hour:");
 
 	    //Set Time
 	    comptador_hora = OFF;
@@ -414,61 +402,61 @@ main ()
 
 	    //Set Preus
 	    lcd_clear ();
-	    printf_xy (0, 1, "T1 - B.b.");
+	    printf_xy (0, 1, "T1Bb");
 	    tarifa1_2[0][0] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T1 - P/Km");
+	    printf_xy (0, 1, "T1P/km");
 	    tarifa1_2[0][1] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T1 - H.Espera");
+	    printf_xy (0, 1, "T1HE");
 	    tarifa1_2[0][2] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T2 - B.b.");
+	    printf_xy (0, 1, "T2Bb");
 	    tarifa1_2[1][0] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T2 - P/Km");
+	    printf_xy (0, 1, "T2P/km");
 	    tarifa1_2[1][1] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T2 - H.Espera");
+	    printf_xy (0, 1, "T2HE");
 	    tarifa1_2[1][2] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T3 - B.b.");
+	    printf_xy (0, 1, "T3Bb");
 	    tarifa3[0] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T3 - P/Km");
+	    printf_xy (0, 1, "T3P/km");
 	    tarifa3[1] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T3 - H.Espera");
+	    printf_xy (0, 1, "T3HE");
 	    tarifa3[2] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T3 - S. Noct.");
+	    printf_xy (0, 1, "T3SN");
 	    tarifa3[3] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "Fact. avui:");
+	    printf_xy (0, 1, "Eur");
 	    printf_int (0, 0, ganancies_avui);
 	    sw7 = OFF;
 	    while (!sw7)
 	      sleep ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "Kms avui:");
+	    printf_xy (0, 1, "Kms");
 	    printf_int (0, 0, kms_avui);
 	    sw7 = OFF;
 	    while (!sw7)
 	      sleep ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "Consum 100km:");
+	    printf_xy (0, 1, "L/km");
 	    printf_int (0, 0, consum_100km);
 	    sw7 = OFF;
 	    while (!sw7)
@@ -538,14 +526,6 @@ main ()
     }
 }
 
-/**Pinta una lletra a una posicio de sa pantalla*/
-static inline void
-printc_xy (char x, char y, char c)
-{
-  lcd_gotoxy (x, y);
-  lcd_putc (c);
-}
-
 static inline int
 get_preu_kbd ()
 {
@@ -572,7 +552,7 @@ ini_funcio_gpreu:
 	    x -= 2;
 	  else if (x != 0)
 	    x--;
-	  printc_xy (x, 0, '0');
+	  printf_xy (x, 0, '0');
 	}
       else
 	{
@@ -580,7 +560,7 @@ ini_funcio_gpreu:
 	  if (i < '0' || i > '9')
 	    goto fi_bucle_gpreu;
 
-	  printc_xy (x, 0, i);
+	  printf_xy (x, 0, i);
 	  x++;
 
 	  if (x == 2)
@@ -621,19 +601,6 @@ end_gpreu:
 }
 
 static inline void
-_printf_xy (char x, char y, char *buffer)
-{
-  //Pre: x : {0,15}
-  //     y : {0,1}
-
-  char i;
-  lcd_gotoxy (x, y);
-  for (i = 0; buffer[i] != '\0'; i++)
-    lcd_putc (buffer[i]);
-}
-
-
-static inline void
 get_time_input ()
 {
   //Aprofitament de codi de la practica anterior
@@ -644,7 +611,7 @@ get_time_input ()
      i si polsem una tecla incorrecte sortira un missatge a la 
      dreta de la segona fila */
 
-  char i, x;
+  char ant, i, x;
 ini_funcio_gtime:
   x = 0;
   printf_xy (0, 0, "00:00");
@@ -656,7 +623,7 @@ ini_funcio_gtime:
 
       while (i == 0x80)
 	i = keyScan ();
-      printc_xy (15, 1, ' ');
+      printf_xy (15, 1, ' ');
 
       //Si polsem C comensem de nou o netejem
       //Si no es un nombre: Error
@@ -669,7 +636,7 @@ ini_funcio_gtime:
 	    x = x - 2;
 	  else if (x != 0)
 	    x--;
-	  printc_xy (x, 0, '0');
+	  printf_xy (x, 0, '0');
 
 	  //Si volem començar de nou, descomentar les 2 seguents linies
 	  //x = 0;
@@ -679,7 +646,7 @@ ini_funcio_gtime:
 	{
 	  if (i < '0' || i > '9')
 	    {
-	      printc_xy (15, 1, 'E');
+	      printf_xy (15, 1, 'E');
 	      goto big_o_error;
 	    }
 	  
@@ -687,16 +654,16 @@ ini_funcio_gtime:
 	  
 	  if ( x == 0 && i > '1')
 	    {
-	      printc_xy (15,1,'B');
+	      printf_xy (15,1,'B');
 	      goto big_o_error;
 	    }
 	  
 	  if ( x == 3 && i > '5')
 	    {
-	      printc_xy (15,1,'B');
+	      printf_xy (15,1,'B');
 	    }
 	  	  
-	  printc_xy (x, 0, i);
+	  printf_xy (x, 0, i);
 	  x++;
   	  if (x == 2) x++;
 	}
@@ -757,5 +724,5 @@ printf_int (int x, int y, int s)
   d[1] = (s % 10) + '0';
   d[0] = (s / 10) + '0';
 
-  _printf_xy (x, y, d);
+  printf_xy (x, y, d);
 }
