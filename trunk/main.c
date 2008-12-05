@@ -40,13 +40,12 @@ uint16_t tarifa3[4];
 //Capceleres de funcions
 #define printf_xy(x,y,s)   { lcd_gotoxy(x,y); lcd_putc(s); }
 static inline void scanf_xy (char x, char y, char *buffer, char len);
-static inline void get_time_input ();
-
-static inline int get_preu_kbd ();
+static void get_time_input ();
+static int get_preu_kbd ();
 static inline void print_tarifa (char i);
 static inline void printf_import (int x, int y, char *s);
 static inline void printf_hora (int x, int y, char *s);
-static inline void lcd_clear ();
+static void lcd_clear ();
 static inline void led_bandera (char status);
 inline static void printf_int (int x, int y, int s);
 inline void suplement_ascii_to_index(char k);
@@ -89,10 +88,10 @@ ext_int ()
 	  if (bandera_pampallugues
 	      && (fraccio_de_pampalluga++ > TICS_PER_PAMPALLUGA))
 	    {
-	      if ((PORTB & 0x20) == 0)
-		PORTB = PORTB | 0x20;
+	      if ((PORTB & 0x80) == 0)
+		PORTB = PORTB | 0x80;
 	      else
-		PORTB = PORTB & 0xDF;
+		PORTB = PORTB & 0x7F;
 	      fraccio_de_pampalluga = 0;
 	    }
 
@@ -159,13 +158,14 @@ suplement_ascii_to_index (char k)
 static inline void
 led_bandera (char status)
 {
+  //El led D7 es l'RB7
   switch (status)
     {
     case BANDERA_ON:
-      PORTB = PORTB | 0x20;
+      PORTB = PORTB | 0x80;
       break;
     case BANDERA_OFF:
-      PORTB = PORTB & 0xDF;
+      PORTB = PORTB & 0x7F;
       bandera_pampallugues = 0;
       break;
     case BANDERA_PAMPALLUGUES_:
@@ -174,7 +174,7 @@ led_bandera (char status)
     }
 }
 
-static inline void
+static void
 lcd_clear ()
 {
   char i ;
@@ -204,14 +204,14 @@ print_tarifa (char i)
 {
   short activa_bandera = OFF;
 
-  if ((PORTB & 0x20) != 0)
+  if ((PORTB & 0x80) != 0)
     activa_bandera = ON;
 
   PORTB = taula_print_tarifa[i];
 
   //Restaurem l'estat de la bandera
   if (activa_bandera)
-    PORTB = PORTB | 0x20;
+    PORTB = PORTB | 0x80;
 }
 
 
@@ -289,8 +289,8 @@ main ()
 	      //i llavors saltar.
 
 	      //Llegim switchs
-	      if (PORTA & 0x02)
-		tarifa = 2;
+	      if (PORTA & 0x02) //------------ optimitzar aquesta guarrada ------------------*FIXME*
+		tarifa = 2;			//------------- S'Ha de setejar tambe index_tarifa_1_2 si escau
 	      else if (PORTA & 0x03)
 		tarifa = 3;
 	      else if (PORTA & 0x04)
@@ -325,18 +325,24 @@ main ()
 
 	case REPOS:
 	  {
+	    char intent = 0;
 	    char c;
 	    char buffer[NCHARS_PASSWD];
 	    char i;
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "Pass:");
+	    printf_xy (0, 1, "Password:");
 
 	    while (bloc == REPOS)
 	      {
 		//Depenent de com estigui sw1, farem que si
 		//ens equivoquem de password, anem a LLIURE o
-		//a REPOS
+		//ens quedem a REPOS per reintentar.
+		//SW1 = ON -> Possibilitat de reintents
+		//SW1 = OFF -> Nomes un intent
+
+		if (intent > 0)
+		  printf_xy(0,0,"              ");
 
 		//Get Passwd
 		for (i = 0; i < NCHARS_PASSWD; i++)
@@ -355,9 +361,16 @@ main ()
 		if (i == (NCHARS_PASSWD - 1))
 		  bloc = CONTROLS;
 		else
+		  {
 		    if (sw1 == OFF)
 		      bloc = LLIURE;
-	     }
+		    else
+		      {
+			printf_xy(0,0,"Try again!");
+			intent++;
+		      }
+		  }
+	      }
 	  }
 	  break;
 
@@ -392,9 +405,9 @@ main ()
 	      for (i = 0; i < NCHARS_PASSWD; i++)
 		passwd[i] = tmp[i];
 
-	    lcd_clear ();
-	    printf_xy (0, 1, "Hour:");
 
+	    lcd_clear ();
+	    printf_xy (0, 1, "Set hora");
 	    //Set Time
 	    comptador_hora = OFF;
 	    get_time_input ();
@@ -402,61 +415,61 @@ main ()
 
 	    //Set Preus
 	    lcd_clear ();
-	    printf_xy (0, 1, "T1Bb");
+	    printf_xy (0, 1, "T1 - B.b.");
 	    tarifa1_2[0][0] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T1P/km");
+	    printf_xy (0, 1, "T1 - P/Km");
 	    tarifa1_2[0][1] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T1HE");
+	    printf_xy (0, 1, "T1 - H.Espera");
 	    tarifa1_2[0][2] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T2Bb");
+	    printf_xy (0, 1, "T2 - B.b.");
 	    tarifa1_2[1][0] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T2P/km");
+	    printf_xy (0, 1, "T2 - P/Km");
 	    tarifa1_2[1][1] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T2HE");
+	    printf_xy (0, 1, "T2 - H.Espera");
 	    tarifa1_2[1][2] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T3Bb");
+	    printf_xy (0, 1, "T3 - B.b.");
 	    tarifa3[0] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T3P/km");
+	    printf_xy (0, 1, "T3 - P/Km");
 	    tarifa3[1] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T3HE");
+	    printf_xy (0, 1, "T3 - H.Espera");
 	    tarifa3[2] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T3SN");
+	    printf_xy (0, 1, "T3 - S. Noct.");
 	    tarifa3[3] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "Eur");
+	    printf_xy (0, 1, "Fact. avui:");
 	    printf_int (0, 0, ganancies_avui);
 	    sw7 = OFF;
 	    while (!sw7)
 	      sleep ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "Kms");
+	    printf_xy (0, 1, "Kms avui:");
 	    printf_int (0, 0, kms_avui);
 	    sw7 = OFF;
 	    while (!sw7)
 	      sleep ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "L/km");
+	    printf_xy (0, 1, "Consum 100km:");
 	    printf_int (0, 0, consum_100km);
 	    sw7 = OFF;
 	    while (!sw7)
@@ -469,8 +482,15 @@ main ()
 	  //ROBERT
 	  lcd_clear ();
 	  //print_tarifa (tarifa); <--Ja t'ho poso des de LLIURE.
-	  import = 0;		//PREU_FIX_BAIXADA_DE_BANDERA;// AQUEST PREU ES SEGONS LA TARIFA!!!!!!-----*FIXME*
-
+	switch (tarifa)	//PREU_FIX_BAIXADA_DE_BANDERA;// AQUEST PREU ES SEGONS LA TARIFA!!!!!!-----*FIXME*
+	{
+	case 3:
+		import = tarifa3[0];
+	break;
+	default:
+		import = tarifa1_2[index_tarifa1_2][0];
+	break;
+	}  
 	  comptador_import = ON;	/* Demanem a l'RSI que incrementi 'import' */
 	  sw7 = OFF;
 	  while (!sw7)
@@ -526,7 +546,7 @@ main ()
     }
 }
 
-static inline int
+static int
 get_preu_kbd ()
 {
   char x, i;
@@ -600,7 +620,7 @@ end_gpreu:
   }
 }
 
-static inline void
+static void
 get_time_input ()
 {
   //Aprofitament de codi de la practica anterior
@@ -611,7 +631,7 @@ get_time_input ()
      i si polsem una tecla incorrecte sortira un missatge a la 
      dreta de la segona fila */
 
-  char ant, i, x;
+  char i, x;
 ini_funcio_gtime:
   x = 0;
   printf_xy (0, 0, "00:00");
