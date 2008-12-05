@@ -54,6 +54,6 @@ static const uint16_t suplement_index_to_preu[] =
 #define NCHARS_PASSWD sizeof(passwd)
 const char passwd[] = "PITOTE";
 const char hora[] = "00:00";
-
+const char taula_print_tarifa[] = {0x00, 0x06, 0x5A, 0x4E, 0x06}; //res,1,2,3,I --> FIXME I
 #define X_IMPORT	0
 #define Y_IMPORT	1
