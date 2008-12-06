@@ -232,6 +232,8 @@ main ()
   ADCON1 = 0x2F;		//RA0:4 Pins com a Digital
   //RA4 Analog Input
 
+  lcd_init ();
+
   //Variables
   fracc_de_fracc_de_segon = 0;
   bandera_pampallugues = OFF;
