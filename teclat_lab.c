@@ -89,16 +89,16 @@ keyScan ()			// Scan for keyboard press
     {
       switch (temp)
 	{
-	case 0 b11100000:
+	case 0b11100000:
 	  temp = 0x00;
 	  break;
-	case 0 b11010000:
+	case 0b11010000:
 	  temp = 0x01;
 	  break;
-	case 0 b10110000:
+	case 0b10110000:
 	  temp = 0x02;
 	  break;
-	case 0 b01110000:
+	case 0b01110000:
 	  temp = 0x03;
 	  break;
 	}
