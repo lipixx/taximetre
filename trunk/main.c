@@ -177,14 +177,13 @@ led_bandera (char status)
 static void
 lcd_clear ()
 {
-  char i ;
-  short y;
-
-  lcd_gotoxy (0, 0);
-
-  for (i = 0; i < LCD_SIZE_X; i++)
-    for (y = 0; y < LCD_SIZE_Y; y++)
-      lcd_putc ('\0');
+  unsigned char x, y;
+  for (y = 0; y < LCD_SIZE_Y; y++)
+    { 
+      lcd_gotoxy (0, y);
+      for (x = 0; x < LCD_SIZE_X; x++)
+	lcd_putc (' ');
+    }
 }
 
 static inline void
