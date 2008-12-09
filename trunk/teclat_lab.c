@@ -15,12 +15,15 @@ const char KeyCodeTable[16] =
 extern char
 keyScan ()			// Scan for keyboard press
 {
-  unsigned char tmpTRISB;
+  unsigned char tmpTRISB, tmpPORTB;
   unsigned char keyCode = 0x80;
   unsigned char col, i, kbhit, temp;
 
-  // Guardar estado de TRISB de otros programas
+  INTE = 0;
+
+  // Guardar estado de *
   tmpTRISB = TRISB;
+  tmpPORTB = PORTB;
 
   TRISB = 0xF0;			// RB4-RB7 entradas; RB0-RB3 salidas
   RBPU = 0;			//Pullup's ON(OPCION REGISTER)
@@ -105,7 +108,11 @@ keyScan ()			// Scan for keyboard press
   i = (temp << 2) + col;
   keyCode = KeyCodeTable[i];
 
-  TRISB = tmpTRISB;		// Reponer TRISB
+  TRISB = tmpTRISB;
+  PORTB = tmpPORTB;
+
+  INTF = 0;
+  INTE = 1;
 
  end:
   return keyCode;
