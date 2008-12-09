@@ -217,7 +217,6 @@ print_tarifa (char i)
 void
 main ()
 {
-
   /*
      SW6 = RA5 per comensar a comptar km's i combustible
      SW5/Generador_LogicT0CLK = RA4 -- Encoder per el combustible
@@ -349,14 +348,11 @@ main ()
 		  printf_xy(0,0,"              ");
 
 		//Get Passwd
+	    lcd_gotoxy (0, 0);
 		for (i = 0; i < NCHARS_PASSWD; i++)
 		  {
-		    do
-		      c = keyScan ();
-		    while (c == 0x80);
-
+		    c = keyScan ();
 		    buffer[i] = c;
-		    lcd_gotoxy (0 + i, 0);
 		    lcd_putc ('*');
 		  }
 
@@ -393,10 +389,7 @@ main ()
 
 	    while (!sw7 && i < NCHARS_PASSWD)
 	      {
-		do
-#error "keyscan i sw7 no s'estimen"
-		  c = keyScan ();	//-----------------------------------------------------------*WARN*
-		while (c == 0x80 && !sw7);
+		c = keyScan ();	//-----------------------------------------------------------*WARN*
 
 		if (!sw7)
 		  {
@@ -519,10 +512,9 @@ main ()
 	    //Mirem estat de sw1 (pujada de bandera)
 	    while ((PORTA & 0x01) == 0)
 	      {
-		char k = 0x80;
-		while (k == 0x80) keyScan();
+		char k;
 
-       		k = suplement_ascii_to_index (k);
+       		k = suplement_ascii_to_index (keyScan ());
 
 		if (k != SUPLEMENT_MALETA)
 		  {
@@ -538,9 +530,7 @@ main ()
 		  }
 		import += suplement_index_to_preu[k];
 
-		k = 0;
-		while (k != 0x80)
-		  k = keyScan ();
+		k = keyScan ();
 	      }
 	  }
 	  break;
@@ -567,8 +557,7 @@ ini_funcio_gpreu:
     {
       lcd_gotoxy (x, 0);
 
-      while (i == 0x80)
-	i = keyScan ();
+      i = keyScan ();
 
       //Opcio de rectificar
       if (i == 'C')
@@ -583,7 +572,7 @@ ini_funcio_gpreu:
 	{
 	  //Si error, ometem
 	  if (i < '0' || i > '9')
-	    goto fi_bucle_gpreu;
+	    continue;
 
 	  printf_xy (x, 0, i);
 	  x++;
@@ -591,18 +580,14 @@ ini_funcio_gpreu:
 	  if (x == 2)
 	    x++;
 	}
-
-    fi_bucle_gpreu:
-      while (keyScan () != 0x80);
     }
 
   sw7 = OFF;
 
 espera_confirmacio:		//Per sortir o pitjem * o pitjem sw7.
 
-#error "keyscan i sw7 no s'estimen"
-  while (i == 0x80 || !sw7)
-    i = keyScan ();		//ALERTA QUE NO SE SOLAPI--------------------------*WARN*
+  /* ACHTUNG: keyscan i sw7 no s'estimen */
+  i = keyScan ();		//ALERTA QUE NO SE SOLAPI--------------------------*WARN*
 
   if (sw7)
     goto end_gpreu;
@@ -647,8 +632,7 @@ ini_funcio_gtime:
       lcd_gotoxy (x, 0);
       i = 0x80;
 
-      while (i == 0x80)
-	i = keyScan ();
+      i = keyScan ();
       printf_xy (15, 1, ' ');
 
       //Si polsem C comensem de nou o netejem
@@ -673,7 +657,7 @@ ini_funcio_gtime:
 	  if (i < '0' || i > '9')
 	    {
 	      printf_xy (15, 1, 'E');
-	      goto big_o_error;
+	      continue;
 	    }
 	  
 	  //Hem de fer que no es puguin fer mes de 12:59
@@ -681,7 +665,7 @@ ini_funcio_gtime:
 	  if ( x == 0 && i > '1')
 	    {
 	      printf_xy (15,1,'B');
-	      goto big_o_error;
+	      continue;
 	    }
 	  
 	  if ( x == 3 && i > '5')
@@ -693,9 +677,6 @@ ini_funcio_gtime:
 	  x++;
   	  if (x == 2) x++;
 	}
-      
-    big_o_error:
-      while (keyScan () != 0x80);
     }
   
   //Si no estem d'acord, podem tornar a introduir hora
@@ -703,9 +684,8 @@ ini_funcio_gtime:
 
 espera_confirmacio:		//Per sortir o pitjem * o pitjem sw7.
   
-#error "keyscan i sw7 no s'estimen"
-  while (i == 0x80 || !sw7)
-    i = keyScan ();		//ALERTA QUE NO SE SOLAPI--------------------------*WARN*
+  /* ACHTUNG: keyscan i sw7 no s'estimen */
+  i = keyScan ();		//ALERTA QUE NO SE SOLAPI--------------------------*WARN*
 
   if (sw7)
     goto end_gtime;
