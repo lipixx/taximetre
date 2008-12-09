@@ -8,9 +8,11 @@
 //Variables
 unsigned char fracc_de_fracc_de_segon;
 
-//-----------------------------------------------------------------------------------------*FIXME*
-#define sw1 (!!(PORTA & 0x01))
-#define sw6 (!!(PORTA & 0x20))
+//-----------------------------------------------------------------------------------------*FIXME*#
+#define sw(n) (!!(PORTA & (1 << n)))
+#define sw1 sw(1)
+#define sw5 sw(5)
+#define sw6 sw(6)
 short sw7;
 short am_pm;
 char bloc;
@@ -219,9 +221,9 @@ main ()
 {
   /*
      SW6 = RA5 per comensar a comptar km's i combustible
-     SW5/Generador_LogicT0CLK = RA4 -- Encoder per el combustible
+     SW5 LLIURE!!  L'assignem a canvi d'estat en sortir de repòs
      SW2:4 = RA1:3 per les tarifes T1,T2,T3
-     SW1/Entrada Analogica = RA0 -- Switch1 o Potenciometre???
+     SW1/Entrada Analogica = RA0 boia
    */
 
   //Pins
@@ -279,7 +281,7 @@ main ()
 	    printf_xy_hora (X_HORA, Y_HORA, hora_en_segons);
 	  sw7 = OFF;
 
-	  //Mirem l'estat del sw1, si OFF anem a REPOS
+	  //Mirem l'estat del sw5, si OFF anem a REPOS
 	  //si ON anem a OCUPAT
 	  if ((PORTA & 0x01) == 0)
 	    {
@@ -338,11 +340,11 @@ main ()
 
 	    while (bloc == REPOS)
 	      {
-		//Depenent de com estigui sw1, farem que si
+		//Depenent de com estigui sw5, farem que si
 		//ens equivoquem de password, anem a LLIURE o
 		//ens quedem a REPOS per reintentar.
-		//SW1 = ON -> Possibilitat de reintents
-		//SW1 = OFF -> Nomes un intent
+		//SW5 = ON -> Possibilitat de reintents
+		//SW5 = OFF -> Nomes un intent
 
 		if (intent > 0)
 		  printf_xy(0,0,"              ");
@@ -362,7 +364,7 @@ main ()
 		  bloc = CONTROLS;
 		else
 		  {
-		    if (sw1 == OFF)
+		    if (sw5 == OFF)
 		      bloc = LLIURE;
 		    else
 		      {
