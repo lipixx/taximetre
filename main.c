@@ -394,6 +394,7 @@ main ()
 	    while (!sw7 && i < NCHARS_PASSWD)
 	      {
 		do
+#error "keyscan i sw7 no s'estimen"
 		  c = keyScan ();	//-----------------------------------------------------------*WARN*
 		while (c == 0x80 && !sw7);
 
@@ -599,6 +600,7 @@ ini_funcio_gpreu:
 
 espera_confirmacio:		//Per sortir o pitjem * o pitjem sw7.
 
+#error "keyscan i sw7 no s'estimen"
   while (i == 0x80 || !sw7)
     i = keyScan ();		//ALERTA QUE NO SE SOLAPI--------------------------*WARN*
 
@@ -701,6 +703,7 @@ ini_funcio_gtime:
 
 espera_confirmacio:		//Per sortir o pitjem * o pitjem sw7.
   
+#error "keyscan i sw7 no s'estimen"
   while (i == 0x80 || !sw7)
     i = keyScan ();		//ALERTA QUE NO SE SOLAPI--------------------------*WARN*
 
