@@ -353,7 +353,7 @@ main ()
 		for (i = 0; i < NCHARS_PASSWD; i++)
 		  {
 		    do
-		      c = keyscan ();
+		      c = keyScan ();
 		    while (c == 0x80);
 
 		    buffer[i] = c;
@@ -395,7 +395,7 @@ main ()
 	    while (!sw7 && i < NCHARS_PASSWD)
 	      {
 		do
-		  c = keyscan ();	//-----------------------------------------------------------*WARN*
+		  c = keyScan ();	//-----------------------------------------------------------*WARN*
 		while (c == 0x80 && !sw7);
 
 		if (!sw7)
