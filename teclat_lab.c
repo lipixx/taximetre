@@ -78,7 +78,10 @@ keyScan ()			// Scan for keyboard press
 
     }
   if (temp == 0xF0)
-    return (0x80);
+    {
+      keyCode = 0x80;
+      goto end;
+    }
   else
     {
       switch (temp)
@@ -102,8 +105,8 @@ keyScan ()			// Scan for keyboard press
   i = (temp << 2) + col;
   keyCode = KeyCodeTable[i];
 
-
-
   TRISB = tmpTRISB;		// Reponer TRISB
-  return (keyCode);
+
+ end:
+  return keyCode;
 }
