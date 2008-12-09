@@ -234,6 +234,9 @@ main ()
 
   lcd_init ();
 
+  /* Per algun motiu, el primer caràcter que enviem es perd.  */
+  lcd_putc (' ');
+
   //Variables
   fracc_de_fracc_de_segon = 0;
   bandera_pampallugues = OFF;
