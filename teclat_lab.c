@@ -9,11 +9,10 @@
 
 
 const char KeyCodeTable[16] =
-  { '1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '*', '0', '#',
-'D' };
+  { '1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '*', '0', '#', 'D' };
 
-extern char
-keyScan ()			// Scan for keyboard press
+char
+keyScan_nobloca ()			// Scan for keyboard press
 {
   unsigned char tmpTRISB, tmpPORTB, tmpRBPU;
   unsigned char keyCode = 0x80;
@@ -118,4 +117,17 @@ keyScan ()			// Scan for keyboard press
   INTE = 1;
 
   return keyCode;
+}
+
+inline char
+keyScan ()			// Scan for keyboard press
+{
+  char c;
+
+  do
+    c = keyScan_nobloca ();
+  while (c == 0x80);
+  while (keyScan_nobloca () != 0x80);
+
+  return c;
 }
