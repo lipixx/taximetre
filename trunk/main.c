@@ -9,10 +9,12 @@
 unsigned char fracc_de_fracc_de_segon;
 
 //-----------------------------------------------------------------------------------------*FIXME*#
-#define sw(n) (!!(PORTA & (1 << n)))
-#define sw1 sw(1)
-#define sw5 sw(5)
-#define sw6 sw(6)
+#define sw1 (PORTA & 0x01)
+#define sw2 (PORTA & 0x02)
+#define sw3 (PORTA & 0x04)
+#define sw4 (PORTA & 0x08)
+#define sw5  PORTA_4 //(PORTA & 0x10)
+#define sw6 (PORTA & 0x20)
 short sw7;
 short am_pm;
 char bloc;
@@ -191,13 +193,15 @@ lcd_clear ()
 static inline void
 printf_xy_hora (int x, int y, char *s)
 {
-  //-------------------------------------------------------------------Rapinyar---------------*FIXME*
+  printf_xy(0,0,"DBG");
+  printf_xy(x,y,"HH:MM");//-------------------------------------------------------------------Rapinyar---------------*FIXME*
 }
 
 static inline void
 printf_xy_import (int x, int y, char *s)
 {
-  //-------------------------------------------------------------------Rapinyar---------------*FIXME*
+  printf_xy(0,0,"DBG");
+  printf_xy(x,y,"00,00");//-------------------------------------------------------------------Rapinyar---------------*FIXME*
 }
 
 static inline void
@@ -241,7 +245,7 @@ main ()
   fracc_de_fracc_de_segon = 0;
   bandera_pampallugues = OFF;
   sw7 = OFF;
-  bloc = REPOS;
+  bloc = LLIURE;
   comptador_hora = ON;
   hora_en_segons = 0;
   tarifa = 0;
@@ -270,20 +274,22 @@ main ()
       switch (bloc)
 	{
 	case LLIURE:
-
+	 	  
 	  lcd_clear ();
 
 	  led_bandera (BANDERA_ON);
 	  print_tarifa (0);	//Netejem display 7 segments (indic. tarifa)
-
+	
 	  sw7 = OFF;
-	  while (sw7 != ON)
+	  INTE = ON;
+	  while (sw7 != ON) //Apagar la bandereta
 	    printf_xy_hora (X_HORA, Y_HORA, hora_en_segons);
 	  sw7 = OFF;
-
+	  INTE = OFF;
+	  
 	  //Mirem l'estat del sw5, si OFF anem a REPOS
 	  //si ON anem a OCUPAT
-	  if ((PORTA & 0x01) == 0)
+	  if (sw5 == OFF)
 	    {
 	      print_tarifa (0);
 	      bloc = REPOS;
@@ -292,192 +298,189 @@ main ()
 	    {
 	      //ANEM A OCUPAT, hem de llegir la tarifa
 	      //i llavors saltar.
-
-	      //Llegim switchs
-	      if (PORTA & 0x02) //------------ optimitzar aquesta guarrada ------------------*FIXME*
-		tarifa = 2;			//------------- S'Ha de setejar tambe index_tarifa_1_2 si escau
-	      else if (PORTA & 0x03)
-		tarifa = 3;
-	      else if (PORTA & 0x04)
-		tarifa = 4;
-	      else
-		tarifa = 0;
+	      
+	      //Llegim switchs per obtenir tarifa, obligatori posar-la
+	      tarifa = 0;
+	      do {
+		if (sw2)
+		  tarifa = 1;			//------------- S'Ha de setejar tambe index_tarifa_1_2 si escau
+		else if (sw3)
+		  tarifa = 2;
+		else if (sw4)
+		  tarifa = 3;
+	      } while (tarifa == 0);
+	      
 	      bloc = OCUPAT;
-
-	      //Hem de posar una tarifa obligatoriament
-	      if (tarifa == 0)
-		{
-		  printf_xy (0, 1, "T?");
-		  do
-		    {
-		      if (PORTA & 0x02)
-			tarifa = 2;
-		      else if (PORTA & 0x03)
-			tarifa = 3;
-		      else if (PORTA & 0x04)
-			tarifa = 4;
-		    }
-		  while (tarifa == 0);
-		  printf_xy (0, 1, "                  ");
-		}
-
+	      lcd_clear();
 	      print_tarifa (tarifa);
 	    }
-
-	  led_bandera (BANDERA_OFF);
-
+       	  led_bandera (BANDERA_OFF);
 	  break;
 
-	case REPOS:
+    case REPOS:
+      {
+	char intent = 0;
+	char c;
+	char buffer[NCHARS_PASSWD];
+	char i;
+	
+	lcd_clear ();
+	printf_xy (0, 1, "Password:");
+	
+	while (bloc == REPOS)
 	  {
-	    char intent = 0;
-	    char c;
-	    char buffer[NCHARS_PASSWD];
-	    char i;
-
-	    lcd_clear ();
-	    printf_xy (0, 1, "Password:");
-
-	    while (bloc == REPOS)
+	    //Depenent de com estigui sw5, farem que si
+	    //ens equivoquem de password, anem a LLIURE o
+	    //ens quedem a REPOS per reintentar.
+	    //SW5 = ON -> Possibilitat de reintents
+	    //SW5 = OFF -> Nomes un intent
+	    
+	    if (intent > 0)
 	      {
-		//Depenent de com estigui sw5, farem que si
-		//ens equivoquem de password, anem a LLIURE o
-		//ens quedem a REPOS per reintentar.
-		//SW5 = ON -> Possibilitat de reintents
-		//SW5 = OFF -> Nomes un intent
+		printf_xy(0,0,"              ");
+		printf_xy(0,1, "Password:");
+	      }
 
-		if (intent > 0)
-		  printf_xy(0,0,"              ");
-
-		//Get Passwd
+	    //Get Passwd
 	    lcd_gotoxy (0, 0);
-		for (i = 0; i < NCHARS_PASSWD; i++)
-		  {
-		    c = keyScan ();
-		    buffer[i] = c;
-		    lcd_putc ('*');
-		  }
-
-		for (i = 0; i < NCHARS_PASSWD && buffer[i] == passwd[i]; i++);
-
-		if (i == (NCHARS_PASSWD - 1))
-		  bloc = CONTROLS;
+	    for (i = 0; i < NCHARS_PASSWD; i++)
+	      {
+		c = keyScan ();
+		buffer[i] = c;
+		lcd_putc ('*');
+	      }
+	    
+	    for (i = 0; i < NCHARS_PASSWD && buffer[i] == passwd[i]; i++);
+	    
+	    if (i == NCHARS_PASSWD)
+	      bloc = CONTROLS;
+	    else
+	      {
+		if (sw5 == ON)
+		  bloc = LLIURE;
 		else
 		  {
-		    if (sw5 == OFF)
-		      bloc = LLIURE;
-		    else
-		      {
-			printf_xy(0,0,"Try again!");
-			intent++;
-		      }
+		    printf_xy(0,0,"Try again!");
+		    printf_xy(0,1,"Press Sw7");
+
+		    sw7 = OFF;
+			INTE = ON; 
+		    while (!sw7);
+		    sw7 = OFF;
+			INTE = OFF;
+		    intent++;
 		  }
 	      }
 	  }
-	  break;
+      }
+      break;
 
 	case CONTROLS:
 	  {
 	    char c, i, tmp[NCHARS_PASSWD];
 	    lcd_clear ();
+		printf_xy(0,0,"DBG:CNTRLS");
 
 	    //Set Passwd
 	    //Donem l'opcio de no canviar el passwd
-	    //pressionant directament el sw7
-	    sw7 = OFF;
+	    //pressionant directament el *
 	    i = 0;
-		lcd_gotoxy(0,1);
-		lcd_putc("NPass:");
+	    printf_xy(0,1,"New Pwd o '*':");
 
-	    while (!sw7 && i < NCHARS_PASSWD)
+	    while (c != '*' && i < NCHARS_PASSWD)
 	      {
-		c = keyScan ();	//-----------------------------------------------------------*WARN*
+		c = keyScan ();
 
-		if (!sw7)
-		  {
-		    tmp[i] = c;
-		    lcd_gotoxy (0 + i, 0);
-		    lcd_putc (c);
-		  }
+		if (c == '*') continue;
+		
+		tmp[i] = c;
+		printf_xy(i,0,c);
 		i++;
 	      }
+
 	    if (i == NCHARS_PASSWD)
 	      for (i = 0; i < NCHARS_PASSWD; i++)
 		passwd[i] = tmp[i];
-
+	    //--------------------------------------------------------------------------NO ES FA BE!!
+	    printf_xy(12,1,passwd[0]);
+		printf_xy(13,1,passwd[1]);
+		printf_xy(14,1,passwd[2]);
+		//---------------------------------------------------------------------------------------
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "Set hora");
+	    printf_xy (0, 1, "Set hora:");
 	    //Set Time
 	    comptador_hora = OFF;
 	    get_time_input ();
 	    comptador_hora = ON;
-
+#if 0
 	    //Set Preus
 	    lcd_clear ();
-	    printf_xy (0, 1, "T1 - B.b.");
+	    printf_xy (0, 1, "T1 - B.b.:");
 	    tarifa1_2[0][0] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T1 - P/Km");
+	    printf_xy (0, 1, "T1 - P/Km:");
 	    tarifa1_2[0][1] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T1 - H.Espera");
+	    printf_xy (0, 1, "T1 - H.Espera:");
 	    tarifa1_2[0][2] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T2 - B.b.");
+	    printf_xy (0, 1, "T2 - B.b.:");
 	    tarifa1_2[1][0] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T2 - P/Km");
+	    printf_xy (0, 1, "T2 - P/Km:");
 	    tarifa1_2[1][1] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T2 - H.Espera");
+	    printf_xy (0, 1, "T2 - H.Espera:");
 	    tarifa1_2[1][2] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T3 - B.b.");
+	    printf_xy (0, 1, "T3 - B.b.:");
 	    tarifa3[0] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T3 - P/Km");
+	    printf_xy (0, 1, "T3 - P/Km:");
 	    tarifa3[1] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T3 - H.Espera");
+	    printf_xy (0, 1, "T3 - H.Espera:");
 	    tarifa3[2] = get_preu_kbd ();
 
 	    lcd_clear ();
-	    printf_xy (0, 1, "T3 - S. Noct.");
+	    printf_xy (0, 1, "T3 - S. Noct:");
 	    tarifa3[3] = get_preu_kbd ();
-
+#endif
+	    //Començem a mostrar dades estadistiques al taxista
 	    lcd_clear ();
 	    printf_xy (0, 1, "Fact. avui:");
 	    printf_int (0, 0, ganancies_avui);
+		INTE = ON;
 	    sw7 = OFF;
-	    while (!sw7)
-	      sleep ();
+	    while (!sw7);
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "Kms avui:");
 	    printf_int (0, 0, kms_avui);
 	    sw7 = OFF;
-	    while (!sw7)
-	      sleep ();
+	    while (!sw7);
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "Consum 100km:");
 	    printf_int (0, 0, consum_100km);
 	    sw7 = OFF;
-	    while (!sw7)
-	      sleep ();
-
+	    while (!sw7);
+  	while (1);
+	    //Tornem a REPOS o a LLIURE?
+		INTE = OFF;
 	    bloc = REPOS;
 	    break;
 	  }
+
 	case OCUPAT:
 	  //ROBERT
 	  lcd_clear ();
@@ -538,7 +541,8 @@ main ()
 	  break;
 
 	default:
-	  break;
+	  	printf_xy(0,0,"bloc?");
+		break;
 	}
     }
 }
@@ -547,21 +551,20 @@ static int
 get_preu_kbd ()
 {
   char x, i;
-  uint16_t retorn; //----------------------------retornar4chars------------FIXME
+  uint16_t retorn;
 
-ini_funcio_gpreu:
+ ini_funcio_gpreu:
   i = 0x80;
   x = 0;
-
-  printf_xy (0, 1, "00.00");
-
+  
+  printf_xy (0, 0, "00,00");
+  
   while (x < 5)
     {
       lcd_gotoxy (x, 0);
-
       i = keyScan ();
-
-      //Opcio de rectificar
+      
+      //Opcio de rectificar amb la tecla C
       if (i == 'C')
 	{
 	  if (x == 3)
@@ -572,44 +575,46 @@ ini_funcio_gpreu:
 	}
       else
 	{
-	  //Si error, ometem
+	  //Si error, ometem el caracter polsat
 	  if (i < '0' || i > '9')
 	    continue;
 
 	  printf_xy (x, 0, i);
 	  x++;
-
+	  
 	  if (x == 2)
 	    x++;
 	}
     }
-
+  
   sw7 = OFF;
 
-espera_confirmacio:		//Per sortir o pitjem * o pitjem sw7.
-
-  /* ACHTUNG: keyscan i sw7 no s'estimen */
-  i = keyScan ();		//ALERTA QUE NO SE SOLAPI--------------------------*WARN*
-
-  if (sw7)
+  //Si estem d'acord, pitjem C de continue
+  //Si volem tornar a introduir dades, pitjem *
+ espera_confirmacio:
+  i = keyScan ();
+  
+  if (i == 'C') //C de continue
     goto end_gpreu;
-
-  if (i == '*')
+  
+  if (i == '*') //* de tornar a intro
     goto ini_funcio_gpreu;
 
-  i = 0x80;
+  i = 0x80; //Tecla erronia, no fem res
   goto espera_confirmacio;
 
-end_gpreu:
+ end_gpreu:
   {
     //Acabarem retornant el preu
     char preu[6];
     sw7 = OFF;
     scanf_xy (0, 1, preu, 5);
+
+    //Preu en centims
     retorn = ((long int) (preu[0] - '0')) * 1000
       + ((long int) (preu[1] - '0')) * 100
       + ((long int) (preu[3] - '0')) * 10 + ((long int) (preu[4] - '0'));
-	return retorn;
+    return retorn;
   }
 }
 
@@ -625,7 +630,8 @@ get_time_input ()
      dreta de la segona fila */
 
   char i, x;
-ini_funcio_gtime:
+ 
+ ini_funcio_gtime:
   x = 0;
   printf_xy (0, 0, "00:00");
 
@@ -633,7 +639,7 @@ ini_funcio_gtime:
     {
       lcd_gotoxy (x, 0);
       i = 0x80;
-
+      
       i = keyScan ();
       printf_xy (15, 1, ' ');
 
@@ -680,29 +686,25 @@ ini_funcio_gtime:
   	  if (x == 2) x++;
 	}
     }
-  
-  //Si no estem d'acord, podem tornar a introduir hora
-  sw7 = OFF;
 
-espera_confirmacio:		//Per sortir o pitjem * o pitjem sw7.
+ //Si estem d'acord, pitjem C de continue
+ //Si volem tornar a introduir dades, pitjem *
+ espera_confirmacio2:
+  i = keyScan ();
   
-  /* ACHTUNG: keyscan i sw7 no s'estimen */
-  i = keyScan ();		//ALERTA QUE NO SE SOLAPI--------------------------*WARN*
-
-  if (sw7)
+  if (i == 'C') //C de continue
     goto end_gtime;
-
-  if (i == '*')
+  
+  if (i == '*') //* de tornar a intro
     goto ini_funcio_gtime;
 
-  i = 0x80; //Qualsevol tecla s'ha pitjat, no fer res
-  goto espera_confirmacio;
+  i = 0x80; //Tecla erronia, no fem res
+  goto espera_confirmacio2;
 
 end_gtime:
   {
     char hora[6];
     //Acabarem guardant la hora
-    sw7 = OFF;
     scanf_xy (0, 1, hora, 5);
     //Falta guardar hora display_to_seconds!!!
     //------------------------------------------------------Rapinyar codi practica anterior---*FIXME*
