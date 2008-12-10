@@ -3,10 +3,21 @@ Variables i descripció:
 
 ################ ¡¡¡  WARNING !!! ############################
 
-* EL DIA NOMES TE 12 HORES --SOLVED
+* get_time_input ha d'agafar de teclat la hora, i setejarla a la var global.
+* get_preu_kbd() agafa un preu vàlid de teclat i el retorna.
+* printf_int(x,y,int) imprimeix un enter
+* ganancies_avui
+* kms_avui
+* consum_100km
+
+
+* Ara peta quan pitjem sw7, que misteriosament s'enva a LLIURE
+* Descomentar #if 0 de controls
+* EL DIA NOMES TE 12 HORES --FIX 19:00 p.ex
 * PRINT_TARIFA amb una taula --SOLVED
 * tarifa es un index
 * fer matriu de tarifes
+
 
 ################ Descripcio variables ########################
 

@@ -14,17 +14,17 @@ const char KeyCodeTable[16] =
 char
 keyScan_nobloca ()			// Scan for keyboard press
 {
-  unsigned char tmpTRISB, tmpPORTB, tmpRBPU;
+  unsigned char tmpTRISB, tmpPORTB, tmpRBPU, tmpINTE;
   unsigned char keyCode = 0x80;
   unsigned char col, i, kbhit, temp;
-
-  INTE = 0;
 
   // Guardar estado de *
   tmpTRISB = TRISB;
   tmpPORTB = PORTB;
   tmpRBPU = RBPU;
+  tmpINTE = INTE;
 
+  INTE = 0;
   TRISB = 0xF0;			// RB4-RB7 entradas; RB0-RB3 salidas
   RBPU = 0;			//Pullup's ON(OPCION REGISTER)
 
@@ -114,7 +114,7 @@ keyScan_nobloca ()			// Scan for keyboard press
   RBPU = tmpRBPU;
 
   INTF = 0;
-  INTE = 1;
+  INTE = tmpINTE;
 
   return keyCode;
 }
