@@ -455,7 +455,7 @@ main ()
 	    printf_xy (0, 1, "T3 - S. Noct:");
 	    tarifa3[3] = get_preu_kbd ();
 #endif
-	    //Començem a mostrar dades estadistiques al taxista
+	    //Comencem a mostrar dades estadistiques al taxista
 	    lcd_clear ();
 	    printf_xy (0, 1, "Fact. avui:");
 	    printf_int (0, 0, ganancies_avui);
