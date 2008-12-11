@@ -317,13 +317,9 @@ main ()
 
     case REPOS:
       {
-	char intent = 0;
 	char c;
 	char buffer[NCHARS_PASSWD];
 	char i;
-	
-	lcd_clear ();
-	printf_xy (0, 1, "Password:");
 	
 	while (bloc == REPOS)
 	  {
@@ -333,12 +329,9 @@ main ()
 	    //SW5 = ON -> Possibilitat de reintents
 	    //SW5 = OFF -> Nomes un intent
 	    
-	    if (intent > 0)
-	      {
-		printf_xy(0,0,"              ");
-		printf_xy(0,1, "Password:");
-	      }
-
+	    lcd_clear ();
+	    printf_xy (0, 1, "Password:");
+	
 	    //Get Passwd
 	    lcd_gotoxy (0, 0);
 	    for (i = 0; i < NCHARS_PASSWD; i++)
@@ -362,11 +355,10 @@ main ()
 		    printf_xy(0,1,"Press Sw7");
 
 		    sw7 = OFF;
-			INTE = ON; 
+		    INTE = ON;
 		    while (!sw7);
 		    sw7 = OFF;
 		    INTE = OFF;
-		    intent++;
 		  }
 	      }
 	  }
