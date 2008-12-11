@@ -52,7 +52,7 @@ static const uint16_t suplement_index_to_preu[] =
 #define TICS_PER_PAMPALLUGA TICS_PER_SEGON
 
 #define NCHARS_PASSWD (sizeof (passwd) - 1)
-const char passwd[] = "123";
+char passwd[] = "123";
 const char hora[] = "00:00";
 const char taula_print_tarifa[] = {0x00, 0x06, 0x5A, 0x4E, 0x06}; //res,1,2,3,I --> FIXME I
 

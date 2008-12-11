@@ -193,15 +193,13 @@ lcd_clear ()
 static inline void
 printf_xy_hora (int x, int y, char *s)
 {
-  printf_xy(0,0,"DBG");
-  printf_xy(x,y,"HH:MM");//-------------------------------------------------------------------Rapinyar---------------*FIXME*
+  //  printf_xy (x, y, "HH:MM");//-------------------------------------------------------------------Rapinyar---------------*FIXME*
 }
 
 static inline void
 printf_xy_import (int x, int y, char *s)
 {
-  printf_xy(0,0,"DBG");
-  printf_xy(x,y,"00,00");//-------------------------------------------------------------------Rapinyar---------------*FIXME*
+  //  printf_xy (x, y, "00,00");//-------------------------------------------------------------------Rapinyar---------------*FIXME*
 }
 
 static inline void
@@ -245,7 +243,7 @@ main ()
   fracc_de_fracc_de_segon = 0;
   bandera_pampallugues = OFF;
   sw7 = OFF;
-  bloc = LLIURE;
+  bloc = REPOS;
   comptador_hora = ON;
   hora_en_segons = 0;
   tarifa = 0;
@@ -367,7 +365,7 @@ main ()
 			INTE = ON; 
 		    while (!sw7);
 		    sw7 = OFF;
-			INTE = OFF;
+		    INTE = OFF;
 		    intent++;
 		  }
 	      }
@@ -379,7 +377,6 @@ main ()
 	  {
 	    char c, i, tmp[NCHARS_PASSWD];
 	    lcd_clear ();
-		printf_xy(0,0,"DBG:CNTRLS");
 
 	    //Set Passwd
 	    //Donem l'opcio de no canviar el passwd
@@ -401,12 +398,7 @@ main ()
 	    if (i == NCHARS_PASSWD)
 	      for (i = 0; i < NCHARS_PASSWD; i++)
 		passwd[i] = tmp[i];
-	    //--------------------------------------------------------------------------NO ES FA BE!!
-	    printf_xy(12,1,passwd[0]);
-		printf_xy(13,1,passwd[1]);
-		printf_xy(14,1,passwd[2]);
-		//---------------------------------------------------------------------------------------
-
+	    
 	    lcd_clear ();
 	    printf_xy (0, 1, "Set hora:");
 	    //Set Time
