@@ -399,9 +399,9 @@ main ()
 	      for (i = 0; i < NCHARS_PASSWD; i++)
 		passwd[i] = tmp[i];
 	    
+	    //Set Time
 	    lcd_clear ();
 	    printf_xy (0, 1, "Set hora:");
-	    //Set Time
 	    comptador_hora = OFF;
 	    get_time_input ();
 	    comptador_hora = ON;
@@ -451,7 +451,7 @@ main ()
 	    lcd_clear ();
 	    printf_xy (0, 1, "Fact. avui:");
 	    printf_int (0, 0, ganancies_avui);
-		INTE = ON;
+	    INTE = ON;
 	    sw7 = OFF;
 	    while (!sw7);
 
@@ -466,9 +466,8 @@ main ()
 	    printf_int (0, 0, consum_100km);
 	    sw7 = OFF;
 	    while (!sw7);
-  	while (1);
-	    //Tornem a REPOS o a LLIURE?
-		INTE = OFF;
+
+	    INTE = OFF;
 	    bloc = REPOS;
 	    break;
 	  }
