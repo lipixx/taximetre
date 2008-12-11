@@ -269,10 +269,10 @@ main ()
 
   while (1)
     {
+    canvia_d_estat:
       switch (bloc)
 	{
 	case LLIURE:
-	 	  
 	  lcd_clear ();
 
 	  led_bandera (BANDERA_ON);
@@ -323,15 +323,26 @@ main ()
 	
 	while (bloc == REPOS)
 	  {
-	    //Depenent de com estigui sw5, farem que si
-	    //ens equivoquem de password, anem a LLIURE o
-	    //ens quedem a REPOS per reintentar.
-	    //SW5 = ON -> Possibilitat de reintents
-	    //SW5 = OFF -> Nomes un intent
-	    
+	    lcd_clear ();
+	    printf_xy (0, 0, "sw5=apujar band.");
+	    printf_xy (0, 1, "sw7=mode control");
+
+	    sw7 = OFF;
+	    INTE = ON;
+	    while (! sw5 && ! sw7);
+	    INTE = OFF;
+
+	    if (sw5)
+	      {
+		bloc = LLIURE;
+		goto canvia_d_estat;
+	      }
+
+	    /* S'ha premut sw7.  */
+
 	    lcd_clear ();
 	    printf_xy (0, 1, "Password:");
-	
+	    
 	    //Get Passwd
 	    lcd_gotoxy (0, 0);
 	    for (i = 0; i < NCHARS_PASSWD; i++)
@@ -344,22 +355,9 @@ main ()
 	    for (i = 0; i < NCHARS_PASSWD && buffer[i] == passwd[i]; i++);
 	    
 	    if (i == NCHARS_PASSWD)
-	      bloc = CONTROLS;
-	    else
 	      {
-		if (sw5 == ON)
-		  bloc = LLIURE;
-		else
-		  {
-		    printf_xy(0,0,"Try again!");
-		    printf_xy(0,1,"Press Sw7");
-
-		    sw7 = OFF;
-		    INTE = ON;
-		    while (!sw7);
-		    sw7 = OFF;
-		    INTE = OFF;
-		  }
+		bloc = CONTROLS;
+		goto canvia_d_estat;
 	      }
 	  }
       }
