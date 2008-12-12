@@ -321,8 +321,6 @@ main ()
 	char buffer[NCHARS_PASSWD];
 	char i;
 	
-	while (bloc == REPOS)
-	  {
 	    lcd_clear ();
 	    printf_xy (0, 0, "sw5=apujar band.");
 	    printf_xy (0, 1, "sw7=mode control");
@@ -360,7 +358,6 @@ main ()
 		goto canvia_d_estat;
 	      }
 	  }
-      }
       break;
 
 	case CONTROLS:
