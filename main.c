@@ -707,14 +707,11 @@ scanf_xy (char x, char y, char *buffer, char len)
 inline static void
 printf_int (int x, int y, int s)
 {
-  char d[4];
-
-  d[3] = (s % 10) + '0';
+  x += 3;
+  printf_xy (x--, y, (s % 10) + '0');
   s /= 10;
-  d[2] = (s % 6) + '0';
+  printf_xy (x--, y, (s % 6) + '0');
   s /= 6;
-  d[1] = (s % 10) + '0';
-  d[0] = (s / 10) + '0';
-
-  printf_xy (x, y, d);
+  printf_xy (x--, y, (s % 10) + '0');
+  printf_xy (x, y, (s / 10) + '0');
 }
