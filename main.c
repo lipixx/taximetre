@@ -51,7 +51,7 @@ static inline void printf_import (int x, int y, char *s);
 static inline void printf_hora (int x, int y, char *s);
 static void lcd_clear ();
 static inline void led_bandera (char status);
-inline static void printf_int (int x, int y, int s);
+static inline void printf_int (int x, int y, long int s);
 inline void suplement_ascii_to_index (char k);
 
 
@@ -75,9 +75,12 @@ ext_int ()
 	      //Pensar a Actualitzar DATA!!, i si canviem de dia resetejar-------------------------*WARN*
 	      //facturacio del dia i km's (i mitja consum/100km?) bit de AM/PM!!!
 
-	      if (!(hora_en_segons % 43200))
-		//Si han passat 12h canvi am_pm
-		am_pm++;
+	      if (hora_en_segons == 43200)
+		{
+		  //Si han passat 12h canvi am_pm
+		  am_pm++;
+		  hora_en_segons = 0;
+		}
 
 	      if (am_pm)	//Si som les 00:00hAM, nou dia
 		{
@@ -238,7 +241,7 @@ main ()
 
   /* Per algun motiu, el primer caràcter que enviem es perd.  */
   lcd_putc (' ');
-
+  
   //Variables
   fracc_de_fracc_de_segon = 0;
   bandera_pampallugues = OFF;
@@ -705,14 +708,14 @@ scanf_xy (char x, char y, char *buffer, char len)
     buffer[i] = lcd_getc (x + i, y);
 }
 
-inline static void
-printf_int (int x, int y, int s)
+static inline void
+printf_int (int x, int y, long int s)
 {
   x += 3;
   printf_xy (x--, y, (s % 10) + '0');
   s /= 10;
-  printf_xy (x--, y, (s % 6) + '0');
-  s /= 6;
+  printf_xy (x--, y, (s % 10) + '0');
+  s /= 10;
   printf_xy (x--, y, (s % 10) + '0');
   printf_xy (x, y, (s / 10) + '0');
 }
