@@ -16,11 +16,12 @@ unsigned char fracc_de_fracc_de_segon;
 #define sw5  PORTA_4		//(PORTA & 0x10)
 #define sw6 (PORTA & 0x20)
 short sw7;
-short am_pm;
 char bloc;
 short bandera_pampallugues;
 short comptador_hora;
 short compta_analogic;
+
+short am_pm;
 uint16_t hora_en_segons;
 
 char tarifa;
@@ -48,7 +49,7 @@ static void get_time_input ();
 static int get_preu_kbd ();
 static inline void print_tarifa (char i);
 static inline void printf_import (int x, int y, char *s);
-static inline void printf_hora (int x, int y, char *s);
+static inline void printf_xy_hora (int x, int y);
 static void lcd_clear ();
 static inline void led_bandera (char status);
 static inline void printf_int (int x, int y, long int s);
@@ -194,9 +195,23 @@ lcd_clear ()
 }
 
 static inline void
-printf_xy_hora (int x, int y, char *s)
+printf_xy_hora (int x, int y)
 {
-  //  printf_xy (x, y, "HH:MM");//-------------------------------------------------------------------Rapinyar---------------*FIXME*
+  unsigned long int s;
+  s = hora_en_segons / 60;
+
+  x += 4;
+  printf_xy (x--, y, (s % 10) + '0');
+  s /= 10;
+  printf_xy (x--, y, (s % 6) + '0');
+  s /= 6;
+
+  printf_xy (x--, y, ':');
+  if (am_pm)
+    s += 12;
+
+  printf_xy (x--, y, (s % 10) + '0');
+  printf_xy (x, y, (s / 10) + '0');
 }
 
 static inline void
@@ -275,7 +290,7 @@ main ()
 	  sw7 = OFF;
 	  INTE = ON;
 	  while (sw7 != ON)	//Apagar la bandereta
-	    printf_xy_hora (X_HORA, Y_HORA, hora_en_segons);
+	    printf_xy_hora (X_HORA, Y_HORA);
 	  sw7 = OFF;
 	  INTE = OFF;
 
@@ -474,7 +489,7 @@ main ()
 	  while (!sw7)
 	    {
 	      printf_xy_import (X_IMPORT, Y_IMPORT, import);
-	      printf_xy_hora (X_HORA, Y_HORA, hora_en_segons);
+	      printf_xy_hora (X_HORA, Y_HORA);
 	    }
 	  comptador_import = OFF;
 	  bloc = IMPORT_;
