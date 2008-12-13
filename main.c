@@ -29,7 +29,7 @@ short index_tarifa1_2;
 
 int ganancies_avui, kms_avui, consum_100km;	//4 digits maxim, amb 8 bits kk
 uint16_t fraccio_de_segon, fraccio_de_pampalluga;
-int import;
+uint16_t import;
 char comptador_import;
 
 
@@ -48,7 +48,7 @@ static inline void scanf_xy (char x, char y, char *buffer, char len);
 static void get_time_input ();
 static int get_preu_kbd ();
 static inline void print_tarifa (char i);
-static inline void printf_import (int x, int y, char *s);
+static inline void printf_xy_import (int x, int y, uint16_t s);
 static inline void printf_xy_hora (int x, int y);
 static void lcd_clear ();
 static inline void led_bandera (char status);
@@ -215,9 +215,18 @@ printf_xy_hora (int x, int y)
 }
 
 static inline void
-printf_xy_import (int x, int y, char *s)
+printf_xy_import (int x, int y, uint16_t s)
 {
-  //  printf_xy (x, y, "00,00");//-------------------------------------------------------------------Rapinyar---------------*FIXME*
+  x += 4;
+  printf_xy (x--, y, (s % 10) + '0');
+  s /= 10;
+  printf_xy (x--, y, (s % 10) + '0');
+  s /= 10;
+
+  printf_xy (x--, y, '.');
+
+  printf_xy (x--, y, (s % 10) + '0');
+  printf_xy (x, y, (s / 10) + '0');
 }
 
 static inline void
