@@ -208,16 +208,7 @@ printf_xy_import (int x, int y, char *s)
 static inline void
 print_tarifa (char i)
 {
-  short activa_bandera = OFF;
-
-  if ((PORTB & 0x80) != 0)
-    activa_bandera = ON;
-
-  PORTB = taula_print_tarifa[i];
-
-  //Restaurem l'estat de la bandera
-  if (activa_bandera)
-    PORTB = PORTB | 0x80;
+  PORTB = (PORTB & 0x80) | (taula_print_tarifa[i] & 0x7f);
 }
 
 
