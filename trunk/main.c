@@ -451,8 +451,8 @@ main ()
 	    lcd_clear ();
 	    printf_xy (0, 1, "Fact. avui:");
 	    printf_int (0, 0, ganancies_avui);
-	    INTE = ON;
 	    sw7 = OFF;
+	    INTE = ON;
 	    while (!sw7);
 
 	    lcd_clear ();
@@ -475,25 +475,20 @@ main ()
 	case OCUPAT:
 	  //ROBERT
 	  lcd_clear ();
-	  switch (tarifa)	//PREU_FIX_BAIXADA_DE_BANDERA;// AQUEST PREU ES SEGONS LA TARIFA!!!!!!-----*FIXME*
-	    {
-	    case 3:
-	      import = tarifa3[INDEX_PREU_BAIXADA_BANDERA];
-	      break;
-	    default:
-	      import = tarifa1_2[index_tarifa1_2][INDEX_PREU_BAIXADA_BANDERA];
-	      break;
-	    }
+	  import = (tarifa == 3 ?
+		    tarifa3[INDEX_PREU_BAIXADA_BANDERA] :
+		    tarifa1_2[tarifa - 1])[INDEX_PREU_BAIXADA_BANDERA]; /* FIXME: resta supèrflua */
 	  comptador_import = ON;	/* Demanem a l'RSI que incrementi 'import' */
 	  sw7 = OFF;
+	  INTE = ON;
 	  while (!sw7)
 	    {
 	      printf_xy_import (X_IMPORT, Y_IMPORT, import);
 	      printf_xy_hora (X_HORA, Y_HORA);
 	    }
+	  INTE = OFF;
 	  comptador_import = OFF;
 	  bloc = IMPORT_;
-
 	  break;
 
 	case IMPORT_:
@@ -501,11 +496,10 @@ main ()
 	    //ROBERT
 	    char suplements_emprats = 0;
 	    led_bandera (BANDERA_PAMPALLUGUES_);
-	    tarifa = 4;		//Posara una I al display de 7 segments ---(es confon amb 1)----------*FIXME*
-	    print_tarifa (tarifa);
+	    print_tarifa (4);
 
-	    //Mirem estat de sw1 (pujada de bandera)
-	    while ((PORTA & 0x01) == 0)
+	    //Mirem estat de sw5 (pujada de bandera)
+	    while (! sw5)
 	      {
 		char k;
 
@@ -514,8 +508,8 @@ main ()
 		if (k != SUPLEMENT_MALETA)
 		  {
 		    char j;
-		    /* La gracia d'aquesta collonada és que `suplements_que_ja_hem_activat'
-		       només ens ocupa un byte (el codi de flagificació ja ocupa més d'un
+		    /* La gràcia d'aquesta collonada és que `suplements_que_ja_hem_activat'
+		       només ens ocupa un byte (el codi de flagelació ja ocupa més d'un
 		       byte, però de memòria de codi anem sobrats).  */
 		    j = int_to_flag (k);
 		    if ((suplements_emprats & j) != 0)
