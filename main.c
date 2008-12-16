@@ -8,13 +8,12 @@
 //Variables
 unsigned char fracc_de_fracc_de_segon;
 
-//-----------------------------------------------------------------------------------------*FIXME*#
-#define sw1 (PORTA & 0x01)
-#define sw2 (PORTA & 0x02)
-#define sw3 (PORTA & 0x04)
-#define sw4 (PORTA & 0x08)
-#define sw5  PORTA_4		//(PORTA & 0x10)
-#define sw6 (PORTA & 0x20)
+#define sw1 PORTA_0
+#define sw2 PORTA_1
+#define sw3 PORTA_2
+#define sw4 PORTA_3
+#define sw5 PORTA_4
+#define sw6 PORTA_5
 short sw7;
 char bloc;
 short bandera_pampallugues;
@@ -25,20 +24,16 @@ short am_pm;
 uint16_t hora_en_segons;
 
 char tarifa;
-short index_tarifa1_2;
 
 int ganancies_avui, kms_avui, consum_100km;	//4 digits maxim, amb 8 bits kk
 uint16_t fraccio_de_segon, fraccio_de_pampalluga;
 uint16_t import;
 char comptador_import;
 
-
-/*
-  tarifaN[0] = Preu baixada bandera
-  tarifaN[1] = Preu/KM
-  tarifaN[2] = Hora d'espera
-  tarifa3[3] = Suplement horari nocturn
- */
+#define INDEX_PREU_BAIXADA_BANDERA	0
+#define INDEX_PREU_PER_KM		1
+#define INDEX_HORA_DESPERA		2
+#define INDEX_SUPLEMENT_HORARI_NOCT	3	/* nomes amb la 3 */
 uint16_t tarifa1_2[2][3];
 uint16_t tarifa3[4];
 
@@ -109,12 +104,10 @@ ext_int ()
 	    }
 	}
       TMR0IF = 0;
-
     }				//END TMR0 Interrupt
 
   if (ADIF == 1 && ADIE == 1)	//---------------------------------------------------------------*FIXME*
     {
-
       /*
          SW6 = RA5 per comensar a comptar km's i combustible
          SW5/Generador_LogicT0CKL = RA4 -- Encoder per el combustible
@@ -134,7 +127,6 @@ ext_int ()
 
       ADIF = 0;
     }
-
 }
 
 static inline char
@@ -417,43 +409,43 @@ main ()
 	    //Set Preus
 	    lcd_clear ();
 	    printf_xy (0, 1, "T1 - B.b.:");
-	    tarifa1_2[0][0] = get_preu_kbd ();
+	    tarifa1_2[0][INDEX_PREU_BAIXADA_BANDERA] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T1 - P/Km:");
-	    tarifa1_2[0][1] = get_preu_kbd ();
+	    tarifa1_2[0][INDEX_PREU_PER_KM] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T1 - H.Espera:");
-	    tarifa1_2[0][2] = get_preu_kbd ();
+	    tarifa1_2[0][INDEX_HORA_DESPERA] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T2 - B.b.:");
-	    tarifa1_2[1][0] = get_preu_kbd ();
+	    tarifa1_2[1][INDEX_PREU_BAIXADA_BANDERA] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T2 - P/Km:");
-	    tarifa1_2[1][1] = get_preu_kbd ();
+	    tarifa1_2[1][INDEX_PREU_PER_KM] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T2 - H.Espera:");
-	    tarifa1_2[1][2] = get_preu_kbd ();
+	    tarifa1_2[1][INDEX_HORA_DESPERA] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T3 - B.b.:");
-	    tarifa3[0] = get_preu_kbd ();
+	    tarifa3[INDEX_PREU_BAIXADA_BANDERA] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T3 - P/Km:");
-	    tarifa3[1] = get_preu_kbd ();
+	    tarifa3[INDEX_PREU_PER_KM] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T3 - H.Espera:");
-	    tarifa3[2] = get_preu_kbd ();
+	    tarifa3[INDEX_HORA_DESPERA] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T3 - S. Noct:");
-	    tarifa3[3] = get_preu_kbd ();
+	    tarifa3[INDEX_SUPLEMENT_HORARI_NOCT] = get_preu_kbd ();
 #endif
 	    //Comencem a mostrar dades estadistiques al taxista
 	    lcd_clear ();
@@ -483,14 +475,13 @@ main ()
 	case OCUPAT:
 	  //ROBERT
 	  lcd_clear ();
-	  //print_tarifa (tarifa); <--Ja t'ho poso des de LLIURE.
 	  switch (tarifa)	//PREU_FIX_BAIXADA_DE_BANDERA;// AQUEST PREU ES SEGONS LA TARIFA!!!!!!-----*FIXME*
 	    {
 	    case 3:
-	      import = tarifa3[0];
+	      import = tarifa3[INDEX_PREU_BAIXADA_BANDERA];
 	      break;
 	    default:
-	      import = tarifa1_2[index_tarifa1_2][0];
+	      import = tarifa1_2[index_tarifa1_2][INDEX_PREU_BAIXADA_BANDERA];
 	      break;
 	    }
 	  comptador_import = ON;	/* Demanem a l'RSI que incrementi 'import' */
