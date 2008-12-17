@@ -44,7 +44,7 @@ static void get_time_input ();
 static int get_preu_kbd ();
 static inline void print_tarifa (char i);
 static inline void printf_xy_import (int x, int y, uint16_t s);
-static inline void printf_xy_hora (int x, int y);
+static void printf_xy_hora (int x, int y);
 static void lcd_clear ();
 static inline void led_bandera (char status);
 static inline void printf_int (int x, int y, long int s);
@@ -186,7 +186,7 @@ lcd_clear ()
     }
 }
 
-static inline void
+static void
 printf_xy_hora (int x, int y)
 {
   unsigned long int s;
@@ -405,7 +405,7 @@ main ()
 	    comptador_hora = OFF;
 	    get_time_input ();
 	    comptador_hora = ON;
-#if 0
+	    
 	    //Set Preus
 	    lcd_clear ();
 	    printf_xy (0, 1, "T1 - B.b.:");
@@ -446,7 +446,7 @@ main ()
 	    lcd_clear ();
 	    printf_xy (0, 1, "T3 - S. Noct:");
 	    tarifa3[INDEX_SUPLEMENT_HORARI_NOCT] = get_preu_kbd ();
-#endif
+	    
 	    //Comencem a mostrar dades estadistiques al taxista
 	    lcd_clear ();
 	    printf_xy (0, 1, "Fact. avui:");
