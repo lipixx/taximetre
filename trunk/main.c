@@ -43,7 +43,7 @@ uint16_t tarifa3[4];
 #define printf_xy(x,y,s)   { lcd_gotoxy(x,y); lcd_putc(s); }
 static inline void scanf_xy (char x, char y, char *buffer, char len);
 static void get_time_input ();
-static int get_preu_kbd ();
+static uint16_t get_preu_kbd ();
 static inline void print_tarifa (char i);
 static inline void printf_xy_import (int x, int y, uint16_t s);
 static void printf_xy_hora (int x, int y);
@@ -401,8 +401,39 @@ main ()
 	case CONTROLS:
 	  {
 	    char c, i, tmp[NCHARS_PASSWD];
-	    lcd_clear ();
 
+		//Comencem a mostrar dades estadistiques al taxista
+	    lcd_clear ();
+	    printf_xy (0, 1, "Fact. avui:");
+	    printf_int (0, 0, ganancies_avui);
+	    sw7 = OFF;
+	    INTE = ON;
+	    while (!sw7);
+
+	    lcd_clear ();
+	    printf_xy (0, 1, "Kms avui:");
+	    printf_int (0, 0, kms_avui);
+	    sw7 = OFF;
+	    while (!sw7);
+
+	    lcd_clear ();
+	    printf_xy (0, 1, "Consum 100km:");
+	    printf_int (0, 0, consum_100km);
+	    sw7 = OFF;
+	    while (!sw7);
+
+	    INTE = OFF;
+		printf_xy (0, 1, "C=Set tarifes");
+	    printf_xy (0, 0, "else goto REPOS");
+
+		c = keyScan();
+		if (c != 'C')
+		  {
+			bloc = REPOS;
+			goto canvia_d_estat;
+		  }
+
+	    lcd_clear ();
 	    //Set Passwd
 	    //Donem l'opcio de no canviar el passwd
 	    //pressionant directament el *
@@ -473,27 +504,6 @@ main ()
 	    printf_xy (0, 1, "T3 - S. Noct:");
 	    tarifa3[INDEX_SUPLEMENT_HORARI_NOCT] = get_preu_kbd ();
 
-	    //Comencem a mostrar dades estadistiques al taxista
-	    lcd_clear ();
-	    printf_xy (0, 1, "Fact. avui:");
-	    printf_int (0, 0, ganancies_avui);
-	    sw7 = OFF;
-	    INTE = ON;
-	    while (!sw7);
-
-	    lcd_clear ();
-	    printf_xy (0, 1, "Kms avui:");
-	    printf_int (0, 0, kms_avui);
-	    sw7 = OFF;
-	    while (!sw7);
-
-	    lcd_clear ();
-	    printf_xy (0, 1, "Consum 100km:");
-	    printf_int (0, 0, consum_100km);
-	    sw7 = OFF;
-	    while (!sw7);
-
-	    INTE = OFF;
 	    bloc = REPOS;
 	    break;
 	  }
@@ -555,11 +565,10 @@ main ()
     }
 }
 
-static int
+static uint16_t
 get_preu_kbd ()
 {
   char x, i;
-  uint16_t retorn;
 
 ini_funcio_gpreu:
   i = 0x80;
@@ -619,10 +628,9 @@ end_gpreu:
     scanf_xy (0, 1, preu, 5);
 
     //Preu en centims
-    retorn = ((long int) (preu[0] - '0')) * 1000
+    return ((long int) (preu[0] - '0')) * 1000
       + ((long int) (preu[1] - '0')) * 100
       + ((long int) (preu[3] - '0')) * 10 + ((long int) (preu[4] - '0'));
-    return retorn;
   }
 }
 
@@ -642,8 +650,10 @@ ini_funcio_gtime:
   x = 0;
   printf_xy (0, 0, "00:00");
 
+bucle_time:
   while (x < 5)
     {
+	  char aux;
       lcd_gotoxy (x, 0);
       i = 0x80;
 
@@ -676,13 +686,38 @@ ini_funcio_gtime:
 	    }
 
 	  //Hem de fer que no es puguin fer mes de 12:59
-
-	  if (x == 0 && i > '1' || x == 1 && i > '2' || x == 3 && i > '5')
-	    {
-	      printf_xy (15, 1, 'B');
-	      continue;
-	    }
-
+	  switch (x)
+	  {
+		case 0:
+			if (i> '2')
+			{
+			printf_xy(15,1,'B');
+			goto bucle_time;
+			}
+			aux = i;
+		break;
+	
+		case 1:
+			{
+				if ((aux == '2') && (i > '3'))
+				{
+				  printf_xy(15,1,'B');
+			      goto bucle_time;
+				}
+			}
+		break;
+	
+		case 3:
+			if (i > '5')
+			{
+			  printf_xy(15,1,'B');
+			  goto bucle_time;
+			}
+		break;
+		default:
+		break;
+		
+	  }
 	  printf_xy (x, 0, i);
 	  x++;
 	  if (x == 2)
@@ -707,10 +742,17 @@ espera_confirmacio2:
 end_gtime:
   {
     char hora[6];
-    //Acabarem guardant la hora
-    scanf_xy (0, 1, hora, 5);
-    //Falta guardar hora display_to_seconds!!!
-    //------------------------------------------------------Rapinyar codi practica anterior---*FIXME*
+	uint16_t hora_en_hores;
+    //Acabarem desant l'hora
+   scanf_xy (0, 1, hora, 5);
+   am_pm = 0;
+   hora_en_hores = (hora[0] - '0') * 10 + (hora[1] - '0');
+   if (hora_en_hores >= 12)
+{
+   am_pm = 1;
+   hora_en_hores -= 12;
+}
+   hora_en_segons = hora_en_hores * 3600 + (uint16_t) (hora[3] - '0') * 600 + (uint16_t) (hora[4] - '0') * 60;
   }
 }
 
