@@ -56,6 +56,22 @@ inline void suplement_ascii_to_index (char k);
 void
 ext_int ()
 {
+#define W_OLD		0x20
+#define STATUS_OLD	0x21
+#define PCLATH_OLD	0x22
+
+#asm
+  movwf W_OLD;
+
+  swapf STATUS, W;
+  clrf STATUS;
+  movwf STATUS_OLD;
+
+  movf PCLATH, W;
+  movwf PCLATH_OLD;
+  clrf PCLATH;
+#endasm
+
   if (INTF == 1 && INTE == 1)
     {
       sw7 = ON;
@@ -127,6 +143,17 @@ ext_int ()
 
       ADIF = 0;
     }
+
+#asm
+  movf PCLATH_OLD, W;
+  movwf PCLATH;
+
+  swapf  STATUS_OLD, W;
+  movwf  STATUS;
+
+  swapf W_OLD, F;
+  swapf W_OLD, W;
+#endasm
 }
 
 static inline char

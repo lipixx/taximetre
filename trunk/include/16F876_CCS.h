@@ -9,6 +9,7 @@
 // HEADER FILE
 
 #device PIC16F876 
+#reserve 0x20, 0x21, 0x22, 0xa0, 0x120, 0x1a0
 #list 
 /* Predefined:
   char W;
@@ -22,9 +23,11 @@
 */
 
 #BYTE TMR0	  = 1
+#BYTE STATUS	  = 0x3
 #BYTE PORTA	  = 5
 #BYTE PORTB	  = 6
 #BYTE PORTC	  = 7 
+#BYTE PCLATH	  = 0xa
 
 #BYTE TRISA		  = 0x85
 #BYTE TRISB		  = 0x86
