@@ -79,7 +79,7 @@ ext_int ()
       sw7 = ON;
       INTF = 0;
     }
-  
+
   if (TMR0IF == 1 && TMR0IE == 1)
     {
       if (fracc_de_fracc_de_segon++ == 255)
@@ -103,8 +103,7 @@ ext_int ()
 	      fraccio_de_segon = 0;
 	    }
 
-	  if (bandera_pampallugues
-	      && (fraccio_de_pampalluga++ > TICS_PER_PAMPALLUGA))
+	  if (bandera_pampallugues && (fraccio_de_pampalluga++ > TICS_PER_PAMPALLUGA))
 	    {
 	      if ((PORTB & 0x80) == 0)
 		PORTB = PORTB | 0x80;
@@ -120,7 +119,7 @@ ext_int ()
 	}
       TMR0IF = 0;
     }
-  
+
   if (ADIF == 1 && ADIE == 1)	/*---------------------------------------------------------------*FIXME*/
     {
       /*
@@ -148,8 +147,8 @@ ext_int ()
   movf PCLATH_OLD, W;
   movwf PCLATH;
 
-  swapf  STATUS_OLD, W;
-  movwf  STATUS;
+  swapf STATUS_OLD, W;
+  movwf STATUS;
 
   swapf W_OLD, F;
   swapf W_OLD, W;
@@ -402,7 +401,7 @@ main ()
 	  {
 	    char c, i, tmp[NCHARS_PASSWD];
 
-		//Comencem a mostrar dades estadistiques al taxista
+	    //Comencem a mostrar dades estadistiques al taxista
 	    lcd_clear ();
 	    printf_xy (0, 1, "Fact. avui:");
 	    printf_int (0, 0, ganancies_avui);
@@ -423,15 +422,15 @@ main ()
 	    while (!sw7);
 
 	    INTE = OFF;
-		printf_xy (0, 1, "C=Set tarifes");
+	    printf_xy (0, 1, "C=Set tarifes");
 	    printf_xy (0, 0, "else goto REPOS");
 
-		c = keyScan();
-		if (c != 'C')
-		  {
-			bloc = REPOS;
-			goto canvia_d_estat;
-		  }
+	    c = keyScan ();
+	    if (c != 'C')
+	      {
+		bloc = REPOS;
+		goto canvia_d_estat;
+	      }
 
 	    lcd_clear ();
 	    //Set Passwd
@@ -653,7 +652,7 @@ ini_funcio_gtime:
 bucle_time:
   while (x < 5)
     {
-	  char aux;
+      char aux;
       lcd_gotoxy (x, 0);
       i = 0x80;
 
@@ -687,37 +686,37 @@ bucle_time:
 
 	  //Hem de fer que no es puguin fer mes de 12:59
 	  switch (x)
-	  {
-		case 0:
-			if (i> '2')
-			{
-			printf_xy(15,1,'B');
-			goto bucle_time;
-			}
-			aux = i;
-		break;
-	
-		case 1:
-			{
-				if ((aux == '2') && (i > '3'))
-				{
-				  printf_xy(15,1,'B');
-			      goto bucle_time;
-				}
-			}
-		break;
-	
-		case 3:
-			if (i > '5')
-			{
-			  printf_xy(15,1,'B');
-			  goto bucle_time;
-			}
-		break;
-		default:
-		break;
-		
-	  }
+	    {
+	    case 0:
+	      if (i > '2')
+		{
+		  printf_xy (15, 1, 'B');
+		  goto bucle_time;
+		}
+	      aux = i;
+	      break;
+
+	    case 1:
+	      {
+		if ((aux == '2') && (i > '3'))
+		  {
+		    printf_xy (15, 1, 'B');
+		    goto bucle_time;
+		  }
+	      }
+	      break;
+
+	    case 3:
+	      if (i > '5')
+		{
+		  printf_xy (15, 1, 'B');
+		  goto bucle_time;
+		}
+	      break;
+	    default:
+	      break;
+
+	    }
 	  printf_xy (x, 0, i);
 	  x++;
 	  if (x == 2)
@@ -742,17 +741,18 @@ espera_confirmacio2:
 end_gtime:
   {
     char hora[6];
-	uint16_t hora_en_hores;
+    uint16_t hora_en_hores;
     //Acabarem desant l'hora
-   scanf_xy (0, 1, hora, 5);
-   am_pm = 0;
-   hora_en_hores = (hora[0] - '0') * 10 + (hora[1] - '0');
-   if (hora_en_hores >= 12)
-{
-   am_pm = 1;
-   hora_en_hores -= 12;
-}
-   hora_en_segons = hora_en_hores * 3600 + (uint16_t) (hora[3] - '0') * 600 + (uint16_t) (hora[4] - '0') * 60;
+    scanf_xy (0, 1, hora, 5);
+    am_pm = 0;
+    hora_en_hores = (hora[0] - '0') * 10 + (hora[1] - '0');
+    if (hora_en_hores >= 12)
+      {
+	am_pm = 1;
+	hora_en_hores -= 12;
+      }
+    hora_en_segons =
+      hora_en_hores * 3600 + (uint16_t) (hora[3] - '0') * 600 + (uint16_t) (hora[4] - '0') * 60;
   }
 }
 
