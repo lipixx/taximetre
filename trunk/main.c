@@ -5,7 +5,7 @@
 #org 0x1F00, 0x1FFF void loader16F876(void) {}
 
 
-//Variables
+/*Variables*/
 unsigned char fracc_de_fracc_de_segon;
 
 #define sw1 PORTA_0
@@ -16,19 +16,21 @@ unsigned char fracc_de_fracc_de_segon;
 #define sw6 PORTA_5
 short sw7;
 char bloc;
+
 short bandera_pampallugues;
 short comptador_hora;
 short compta_analogic;
-
 short am_pm;
+short comptador_import;
+
 uint16_t hora_en_segons;
 
 char tarifa;
 
-int ganancies_avui, kms_avui, consum_100km;	//4 digits maxim, amb 8 bits kk
+int ganancies_avui, kms_avui, consum_100km;	/*4 digits maxim, amb 8 bits kk */
 uint16_t fraccio_de_segon, fraccio_de_pampalluga;
 uint16_t import;
-char comptador_import;
+
 
 #define INDEX_PREU_BAIXADA_BANDERA	0
 #define INDEX_PREU_PER_KM		1
@@ -37,7 +39,7 @@ char comptador_import;
 uint16_t tarifa1_2[2][3];
 uint16_t tarifa3[4];
 
-//Capceleres de funcions
+/*Capceleres de funcions*/
 #define printf_xy(x,y,s)   { lcd_gotoxy(x,y); lcd_putc(s); }
 static inline void scanf_xy (char x, char y, char *buffer, char len);
 static void get_time_input ();
@@ -77,28 +79,25 @@ ext_int ()
       sw7 = ON;
       INTF = 0;
     }
-
+  
   if (TMR0IF == 1 && TMR0IE == 1)
-    {				//START TMR0 Interrupt
+    {
       if (fracc_de_fracc_de_segon++ == 255)
 	{
 	  if (comptador_hora && (fraccio_de_segon++ > TICS_PER_SEGON))
 	    {
-	      //Pensar a Actualitzar DATA!!, i si canviem de dia resetejar-------------------------*WARN*
-	      //facturacio del dia i km's (i mitja consum/100km?) bit de AM/PM!!!
-
 	      if (hora_en_segons == 43200)
 		{
-		  //Si han passat 12h canvi am_pm
+		  /*Si han passat 12h canvi am_pm */
 		  am_pm++;
 		  hora_en_segons = 0;
 		}
 
-	      if (am_pm)	//Si som les 00:00hAM, nou dia
+	      if (am_pm)	/*Si som les 00:00hAM, nou dia */
 		{
 		  ganancies_avui = 0;
 		  kms_avui = 0;
-		  //falta res?
+		  consum_100km = 0;
 		}
 	      hora_en_segons++;
 	      fraccio_de_segon = 0;
@@ -114,33 +113,34 @@ ext_int ()
 	      fraccio_de_pampalluga = 0;
 	    }
 
-	  if (sw6 == 1)		//Comprovam el sw6, si activat començem a comptar
+	  if (sw6)		/*Comprovam el sw6, si activat comencem a comptar */
 	    {
 	      compta_analogic = ON;
 	    }
 	}
       TMR0IF = 0;
-    }				//END TMR0 Interrupt
-
-  if (ADIF == 1 && ADIE == 1)	//---------------------------------------------------------------*FIXME*
+    }
+  
+  if (ADIF == 1 && ADIE == 1)	/*---------------------------------------------------------------*FIXME*/
     {
       /*
          SW6 = RA5 per comensar a comptar km's i combustible
          SW5/Generador_LogicT0CKL = RA4 -- Encoder per el combustible
          SW2:4 = RA1:3 per les tarifes T1,T2,T3
          SW1/Entrada Analogica = RA0
-       */
-      //Hem rebut final de conversio
-      //Llegir resultat en els regs ADRESH:ADRESL
 
-      if (compta_analogic == ON)	//----
+         Hem rebut final de conversio
+         Llegir resultat en els regs ADRESH:ADRESL */
+
+      if (compta_analogic == ON)
 	{
-	  if (comptador_import == 1)
-	    import++;		//--------
-	  kms_avui++;		//-------------------------------------------------------------------*FIXME*
-	  consum_100km++;	//---
+	  if (comptador_import == ON)
+	    {
+	      import++;
+	      kms_avui++;
+	      consum_100km++;
+	    }
 	}
-
       ADIF = 0;
     }
 
@@ -185,7 +185,7 @@ suplement_ascii_to_index (char k)
 static inline void
 led_bandera (char status)
 {
-  //El led D7 es l'RB7
+  /*El led D7 es l'RB7 */
   switch (status)
     {
     case BANDERA_ON:
@@ -193,10 +193,10 @@ led_bandera (char status)
       break;
     case BANDERA_OFF:
       PORTB = PORTB & 0x7F;
-      bandera_pampallugues = 0;
+      bandera_pampallugues = OFF;
       break;
     case BANDERA_PAMPALLUGUES_:
-      bandera_pampallugues = 1;
+      bandera_pampallugues = ON;
       break;
     }
 }
@@ -265,24 +265,23 @@ main ()
      SW1/Entrada Analogica = RA0 boia
    */
 
-  //Pins
-  TRISB = 0x01;			//RB0 Input, RB1:7 Output
-  TRISA = 0x3F;			//RA0:5 Pins coma a Input
-  ADCON1 = 0x2F;		//RA0:4 Pins com a Digital
-  //RA4 Analog Input
+  /*Pins */
+  TRISB = 0x01;			/*RB0 Input, RB1:7 Output
+				   TRISA = 0x3F;                        RA0:5 Pins coma a Input
+				   ADCON1 = 0x2F;               RA0:4 Pins com a Digital */
 
   lcd_init ();
 
   /* Per algun motiu, el primer caràcter que enviem es perd.  */
   lcd_putc (' ');
-  
-  //Variables
+
+  /*Variables */
   fracc_de_fracc_de_segon = 0;
   bandera_pampallugues = OFF;
   sw7 = OFF;
   bloc = REPOS;
-  comptador_hora = ON;
   hora_en_segons = 0;
+  comptador_hora = ON;
   tarifa = 0;
   ganancies_avui = 0;
   kms_avui = 0;
@@ -291,17 +290,17 @@ main ()
   fraccio_de_pampalluga = 0;
   am_pm = 0;
 
-  //Interrupcions//
-  //Timer preescaler de 256:
+  /*Interrupcions */
+  /*Timer preescaler de 256: */
   PSA = 0;
   PS0 = 1;
   PS1 = 1;
   PS2 = 1;
-  TMR0 = 0;			//Reestablim Contador
+  TMR0 = 0;			/*Reestablim Contador */
   TMR0IF = 0;
   TMR0IE = ON;
-
   INTE = OFF;
+
   GIE = ON;
 
   while (1)
@@ -313,17 +312,16 @@ main ()
 	  lcd_clear ();
 
 	  led_bandera (BANDERA_ON);
-	  print_tarifa (0);	//Netejem display 7 segments (indic. tarifa)
-
+	  print_tarifa (0);	/*Netejem display 7 segments (indic. tarifa) */
 	  sw7 = OFF;
 	  INTE = ON;
-	  while (sw7 != ON)	//Apagar la bandereta
+	  while (sw7 != ON)	/*Apagar la bandereta */
 	    printf_xy_hora (X_HORA, Y_HORA);
 	  sw7 = OFF;
 	  INTE = OFF;
 
-	  //Mirem l'estat del sw5, si OFF anem a REPOS
-	  //si ON anem a OCUPAT
+	  /*Mirem l'estat del sw5, si OFF anem a REPOS
+	     si ON anem a OCUPAT */
 	  if (sw5 == OFF)
 	    {
 	      print_tarifa (0);
@@ -331,22 +329,23 @@ main ()
 	    }
 	  else
 	    {
-	      //ANEM A OCUPAT, hem de llegir la tarifa
-	      //i llavors saltar.
+	      /*ANEM A OCUPAT, hem de llegir la tarifa
+	         i llavors saltar. */
 
-	      //Llegim switchs per obtenir tarifa, obligatori posar-la
+	      /*Llegim switchs per obtenir tarifa, obligatori posar-la */
 	      tarifa = 0;
 	      do
 		{
 		  if (sw2)
-		    tarifa = 1;	//------------- S'Ha de setejar tambe index_tarifa_1_2 si escau
+		    tarifa = 1;
 		  else if (sw3)
 		    tarifa = 2;
 		  else if (sw4)
 		    tarifa = 3;
 		}
 	      while (tarifa == 0);
-
+	      /*Problema: Els switchs de TARIFA estan multiplexats amb 3 bits de l'LCD. L'lcd hi te valors
+	         posats i els llegim d'alla. No te solucio. Mala sort */
 	      bloc = OCUPAT;
 	      lcd_clear ();
 	      print_tarifa (tarifa);
@@ -432,7 +431,7 @@ main ()
 	    comptador_hora = OFF;
 	    get_time_input ();
 	    comptador_hora = ON;
-	    
+
 	    //Set Preus
 	    lcd_clear ();
 	    printf_xy (0, 1, "T1 - B.b.:");
@@ -473,7 +472,7 @@ main ()
 	    lcd_clear ();
 	    printf_xy (0, 1, "T3 - S. Noct:");
 	    tarifa3[INDEX_SUPLEMENT_HORARI_NOCT] = get_preu_kbd ();
-	    
+
 	    //Comencem a mostrar dades estadistiques al taxista
 	    lcd_clear ();
 	    printf_xy (0, 1, "Fact. avui:");
@@ -502,9 +501,7 @@ main ()
 	case OCUPAT:
 	  //ROBERT
 	  lcd_clear ();
-	  import = (tarifa == 3 ?
-		    tarifa3[INDEX_PREU_BAIXADA_BANDERA] :
-		    tarifa1_2[tarifa - 1])[INDEX_PREU_BAIXADA_BANDERA]; /* FIXME: resta supèrflua */
+	  import = (tarifa == 3 ? tarifa3[INDEX_PREU_BAIXADA_BANDERA] : tarifa1_2[tarifa - 1])[INDEX_PREU_BAIXADA_BANDERA];	/* FIXME: resta supèrflua */
 	  comptador_import = ON;	/* Demanem a l'RSI que incrementi 'import' */
 	  sw7 = OFF;
 	  INTE = ON;
@@ -526,7 +523,7 @@ main ()
 	    print_tarifa (4);
 
 	    //Mirem estat de sw5 (pujada de bandera)
-	    while (! sw5)
+	    while (!sw5)
 	      {
 		char k;
 
@@ -600,8 +597,8 @@ ini_funcio_gpreu:
 
   sw7 = OFF;
 
-  //Si estem d'acord, pitjem C de continue
-  //Si volem tornar a introduir dades, pitjem *
+  /*Si estem d'acord, pitjem C de continue
+     Si volem tornar a introduir dades, pitjem * */
 espera_confirmacio:
   i = keyScan ();
 
@@ -632,7 +629,6 @@ end_gpreu:
 static void
 get_time_input ()
 {
-  //Aprofitament de codi de la practica anterior
   /*Bucle per introduïr dades al cronometre, quan haguem acabat
      polsarem el sw7. Si pitjem la tecla C es
      fan net les dades introduides.
@@ -681,15 +677,10 @@ ini_funcio_gtime:
 
 	  //Hem de fer que no es puguin fer mes de 12:59
 
-	  if (x == 0 && i > '1')
+	  if (x == 0 && i > '1' || x == 1 && i > '2' || x == 3 && i > '5')
 	    {
 	      printf_xy (15, 1, 'B');
 	      continue;
-	    }
-
-	  if (x == 3 && i > '5')
-	    {
-	      printf_xy (15, 1, 'B');
 	    }
 
 	  printf_xy (x, 0, i);
@@ -699,8 +690,8 @@ ini_funcio_gtime:
 	}
     }
 
-  //Si estem d'acord, pitjem C de continue
-  //Si volem tornar a introduir dades, pitjem *
+  /*Si estem d'acord, pitjem C de continue
+     Si volem tornar a introduir dades, pitjem * */
 espera_confirmacio2:
   i = keyScan ();
 
