@@ -295,6 +295,7 @@ main ()
   PS0 = 1;
   PS1 = 1;
   PS2 = 1;
+  TOCS = 0;
   TMR0 = 0;			/*Reestablim Contador */
   TMR0IF = 0;
   TMR0IE = ON;
@@ -624,7 +625,7 @@ end_gpreu:
     //Acabarem retornant el preu
     char preu[6];
     sw7 = OFF;
-    scanf_xy (0, 1, preu, 5);
+    scanf_xy (0, 0, preu, 5);
 
     //Preu en centims
     return ((long int) (preu[0] - '0')) * 1000
@@ -743,7 +744,7 @@ end_gtime:
     char hora[6];
     uint16_t hora_en_hores;
     //Acabarem desant l'hora
-    scanf_xy (0, 1, hora, 5);
+    scanf_xy (0, 0, hora, 5);
     am_pm = 0;
     hora_en_hores = (hora[0] - '0') * 10 + (hora[1] - '0');
     if (hora_en_hores >= 12)
