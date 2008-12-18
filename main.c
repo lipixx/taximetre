@@ -135,7 +135,6 @@ ext_int ()
 	  if (comptador_import == ON)
 	    {
 	      import++;
-	      kms_avui++;
 	      consum_100km++;
 	    }
 	}
@@ -288,11 +287,11 @@ main ()
   am_pm = 0;
 
   /*Interrupcions */
-  /*Timer preescaler de 256: */
+  /*Timer preescaler de 16: */
   PSA = 0;
   PS0 = 1;
   PS1 = 1;
-  PS2 = 1;
+  PS2 = 0;
   TOCS = 0;
   TMR0 = 0;			/*Reestablim Contador */
   TMR0IF = 0;
@@ -334,12 +333,12 @@ main ()
 	      tarifa = 0;
 	      do
 		{
-		  if (sw2)
-		    tarifa = 1;
+		  if (sw4)
+		    tarifa = 3;
 		  else if (sw3)
 		    tarifa = 2;
-		  else if (sw4)
-		    tarifa = 3;
+		  else if (sw2)
+		    tarifa = 1;
 		}
 	      while (tarifa == 0);
 	      /*Problema: Els switchs de TARIFA estan multiplexats amb 3 bits de l'LCD. L'lcd hi te valors
