@@ -58,7 +58,6 @@ static inline void led_bandera (char status);
 static inline void printf_int (int x, int y, long int s);
 inline void suplement_ascii_to_index (char k);
 
-
 //Codi
 #int_global
 void
@@ -82,11 +81,17 @@ ext_int ()
 
   if (0) /* FIXME */
     {
-      if (tics_pols >= TICS_PER_30KM)
+      if (tics_pols >= TICS_PER_30KM_S)
 	tipus_de_fact = FACT_PER_TEMPS;
       else
 	tipus_de_fact = FACT_PER_POLSOS;
       tics_pols = 0;
+
+      if (fraccio_de_km++ == POLSOS_PER_KM)
+	{
+	  kms_avui++;
+	  fraccio_de_km = 0;
+	}
     }
 
   if (INTF == 1 && INTE == 1)
@@ -302,6 +307,7 @@ main ()
   consum_100km = 0;
   fraccio_de_segon = 0;
   fraccio_de_pampalluga = 0;
+  fraccio_de_km = 0;
   am_pm = 0;
 
   /*Interrupcions */
