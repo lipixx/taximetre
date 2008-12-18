@@ -218,7 +218,7 @@ static void
 printf_xy_hora (int x, int y)
 {
   unsigned long int s;
-  s = hora_en_segons / 60;
+  s = hora_en_segons;
 
   x += 4;
   printf_xy (x--, y, (s % 10) + '0');
