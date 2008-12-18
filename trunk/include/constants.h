@@ -48,9 +48,16 @@ static const uint16_t suplement_index_to_preu[] =
     100		/* gos */
   };
 
+/* Polsos per volta */
+#define N	1
+
 #define TICS_PER_SEGON		1221
 #define TICS_PER_PAMPALLUGA	TICS_PER_SEGON
-#define TICS_PER_30KM		460
+/* PI * TICS_PER_SEGON * N 1/m * 8.333 m/s */
+#define TICS_PER_30KM_S		(460 * N)
+
+/* (1000 / PI) * N */
+#define POLSOS_PER_KM		(318 * N)
 
 #define NCHARS_PASSWD (sizeof (passwd) - 1)
 char passwd[] = "123";
