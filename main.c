@@ -84,7 +84,7 @@ ext_int ()
     {
       if (fracc_de_fracc_de_segon++ == 255)
 	{
-	  if (comptador_hora && (fraccio_de_segon++ > TICS_PER_SEGON))
+	  if (comptador_hora && (fraccio_de_segon++ == TICS_PER_SEGON))
 	    {
 	      if (hora_en_segons == 43200)
 		{
@@ -103,7 +103,7 @@ ext_int ()
 	      fraccio_de_segon = 0;
 	    }
 
-	  if (bandera_pampallugues && (fraccio_de_pampalluga++ > TICS_PER_PAMPALLUGA))
+	  if (bandera_pampallugues && (fraccio_de_pampalluga++ == TICS_PER_PAMPALLUGA))
 	    {
 	      if ((PORTB & 0x80) == 0)
 		PORTB = PORTB | 0x80;
@@ -116,6 +116,8 @@ ext_int ()
 	    {
 	      compta_analogic = ON;
 	    }
+
+	  fracc_de_fracc_de_segon = 0;
 	}
       TMR0IF = 0;
     }
