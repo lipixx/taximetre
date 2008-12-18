@@ -549,32 +549,43 @@ main ()
 	case IMPORT_:
 	  {
 	    //ROBERT
+	    short sw5_inicial;
+	    char c, k;
 	    char suplements_emprats = 0;
 	    led_bandera (BANDERA_PAMPALLUGUES_);
 	    print_tarifa (4);
 
-	    //Mirem estat de sw5 (pujada de bandera)
-	    while (!sw5)
+	    sw5_inicial = sw5;
+
+	    while (1)
 	      {
-		char k;
-
-		k = suplement_ascii_to_index (keyScan ());
-
-		if (k != SUPLEMENT_MALETA)
+		if (sw5 != sw5_inicial)
 		  {
-		    char j;
-		    /* La gràcia d'aquesta collonada és que `suplements_que_ja_hem_activat'
-		       només ens ocupa un byte (el codi de flagelació ja ocupa més d'un
-		       byte, però de memòria de codi anem sobrats).  */
-		    j = int_to_flag (k);
-		    if ((suplements_emprats & j) != 0)
-		      continue;
-		    else
-		      suplements_emprats |= j;
+		    bloc = LLIURE;
+		    ganancies_avui += import;
+		    goto canvia_d_estat;
 		  }
-		import += suplement_index_to_preu[k];
+		
+		c = keyScan_nobloca ();
+		if (c != 0x80)
+		  {
+		    while (keyScan_nobloca () != 0x80);
 
-		k = keyScan ();
+		    k = suplement_ascii_to_index (c);
+		    if (k != SUPLEMENT_MALETA)
+		      {
+			char j;
+			/* La gràcia d'aquesta collonada és que `suplements_que_ja_hem_activat'
+			   només ens ocupa un byte (el codi de flagelació ja ocupa més d'un
+			   byte, però de memòria de codi anem sobrats).  */
+			j = int_to_flag (k);
+			if ((suplements_emprats & j) != 0)
+			  continue;
+			else
+			  suplements_emprats |= j;
+		      }
+		    import += suplement_index_to_preu[k];
+		  }
 	      }
 	  }
 	  break;
