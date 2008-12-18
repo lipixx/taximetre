@@ -33,8 +33,8 @@ uint16_t hora_en_segons;
 
 char tarifa;
 
-int ganancies_avui, kms_avui, consum_100km;	/*4 digits maxim, amb 8 bits kk */
-uint16_t fraccio_de_segon, fraccio_de_pampalluga;
+int ganancies_avui, kms_avui, consum_100km;
+uint16_t fraccio_de_segon, fraccio_de_pampalluga, fraccio_de_km;
 uint16_t import;
 uint16_t tics_pols;
 
