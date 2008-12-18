@@ -49,15 +49,15 @@ static const uint16_t suplement_index_to_preu[] =
   };
 
 /* Polsos per volta */
-#define N	1
+#define POLSOS_PER_VOLTA	1
 
 #define TICS_PER_SEGON		1221
 #define TICS_PER_PAMPALLUGA	TICS_PER_SEGON
-/* PI * TICS_PER_SEGON * N 1/m * 8.333 m/s */
-#define TICS_PER_30KM_S		(460 * N)
+/* PI * TICS_PER_SEGON * POLSOS_PER_VOLTA 1/m * 8.333 m/s */
+#define TICS_PER_30KM_S		(460 * POLSOS_PER_VOLTA)
 
-/* (1000 / PI) * N */
-#define POLSOS_PER_KM		(318 * N)
+/* (1000 / PI) * POLSOS_PER_VOLTA */
+#define POLSOS_PER_KM		(318 * POLSOS_PER_VOLTA)
 
 #define NCHARS_PASSWD (sizeof (passwd) - 1)
 char passwd[] = "123";
