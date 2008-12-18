@@ -48,8 +48,9 @@ static const uint16_t suplement_index_to_preu[] =
     100		/* gos */
   };
 
-#define TICS_PER_SEGON	    1221
-#define TICS_PER_PAMPALLUGA TICS_PER_SEGON
+#define TICS_PER_SEGON		1221
+#define TICS_PER_PAMPALLUGA	TICS_PER_SEGON
+#define TICS_PER_30KM		460
 
 #define NCHARS_PASSWD (sizeof (passwd) - 1)
 char passwd[] = "123";

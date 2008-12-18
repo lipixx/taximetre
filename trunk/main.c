@@ -22,6 +22,13 @@ short compta_analogic;
 short am_pm;
 short comptador_import;
 
+enum kjf0d49wf
+  {
+    FACT_PER_TEMPS,
+    FACT_PER_POLSOS
+  };
+short tipus_de_fact;
+
 uint16_t hora_en_segons;
 
 char tarifa;
@@ -29,7 +36,7 @@ char tarifa;
 int ganancies_avui, kms_avui, consum_100km;	/*4 digits maxim, amb 8 bits kk */
 uint16_t fraccio_de_segon, fraccio_de_pampalluga;
 uint16_t import;
-
+uint16_t tics_pols;
 
 #define INDEX_PREU_BAIXADA_BANDERA	0
 #define INDEX_PREU_PER_KM		1
@@ -73,6 +80,15 @@ ext_int ()
   clrf PCLATH;
 #endasm
 
+  if (0) /* FIXME */
+    {
+      if (tics_pols >= TICS_PER_30KM)
+	tipus_de_fact = FACT_PER_TEMPS;
+      else
+	tipus_de_fact = FACT_PER_POLSOS;
+      tics_pols = 0;
+    }
+
   if (INTF == 1 && INTE == 1)
     {
       sw7 = ON;
@@ -81,6 +97,8 @@ ext_int ()
 
   if (TMR0IF == 1 && TMR0IE == 1)
     {
+      tics_pols++;
+
       if (comptador_hora && (fraccio_de_segon++ == TICS_PER_SEGON))
 	{
 	  if (hora_en_segons == 43200)
