@@ -511,7 +511,7 @@ main ()
 	case OCUPAT:
 	  //ROBERT
 	  lcd_clear ();
-	  import = (tarifa == 3 ? tarifa3[INDEX_PREU_BAIXADA_BANDERA] : tarifa1_2[tarifa - 1])[INDEX_PREU_BAIXADA_BANDERA];	/* FIXME: resta supèrflua */
+	  import = (tarifa == 3 ? tarifa3 : tarifa1_2[tarifa - 1])[INDEX_PREU_BAIXADA_BANDERA];	/* FIXME: resta supèrflua */
 	  comptador_import = ON;	/* Demanem a l'RSI que incrementi 'import' */
 	  sw7 = OFF;
 	  INTE = ON;
