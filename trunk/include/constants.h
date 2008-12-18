@@ -24,7 +24,7 @@
 #define BANDERA_ON	     1
 #define BANDERA_PAMPALLUGUES_ 2
 
-typedef long int uint16_t;
+typedef unsigned long int uint16_t;
 
 /* Important: l'enum i l'array que hi ha a continuació han d'estar en el
    mateix ordre.  */
