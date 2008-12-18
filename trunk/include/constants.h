@@ -48,7 +48,7 @@ static const uint16_t suplement_index_to_preu[] =
     100		/* gos */
   };
 
-#define TICS_PER_SEGON	    305
+#define TICS_PER_SEGON	    76
 #define TICS_PER_PAMPALLUGA TICS_PER_SEGON
 
 #define NCHARS_PASSWD (sizeof (passwd) - 1)

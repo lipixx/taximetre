@@ -6,7 +6,6 @@
 
 
 /*Variables*/
-unsigned char fracc_de_fracc_de_segon;
 
 #define sw1 PORTA_0
 #define sw2 PORTA_1
@@ -82,43 +81,41 @@ ext_int ()
 
   if (TMR0IF == 1 && TMR0IE == 1)
     {
-      if (fracc_de_fracc_de_segon++ == 255)
+      if (comptador_hora && (fraccio_de_segon++ == TICS_PER_SEGON))
 	{
-	  if (comptador_hora && (fraccio_de_segon++ == TICS_PER_SEGON))
+	  if (hora_en_segons == 43200)
 	    {
-	      if (hora_en_segons == 43200)
-		{
-		  /*Si han passat 12h canvi am_pm */
-		  am_pm++;
-		  hora_en_segons = 0;
-		}
-
-	      if (am_pm)	/*Si som les 00:00hAM, nou dia */
-		{
-		  ganancies_avui = 0;
-		  kms_avui = 0;
-		  consum_100km = 0;
-		}
-	      hora_en_segons++;
-	      fraccio_de_segon = 0;
+	      /*Si han passat 12h canvi am_pm */
+	      am_pm++;
+	      hora_en_segons = 0;
 	    }
 
-	  if (bandera_pampallugues && (fraccio_de_pampalluga++ == TICS_PER_PAMPALLUGA))
+	  if (am_pm)		/*Si som les 00:00hAM, nou dia */
 	    {
-	      if ((PORTB & 0x80) == 0)
-		PORTB = PORTB | 0x80;
-	      else
-		PORTB = PORTB & 0x7F;
-	      fraccio_de_pampalluga = 0;
+	      ganancies_avui = 0;
+	      kms_avui = 0;
+	      consum_100km = 0;
 	    }
 
-	  if (sw6)		/*Comprovam el sw6, si activat comencem a comptar */
-	    {
-	      compta_analogic = ON;
-	    }
-
-	  fracc_de_fracc_de_segon = 0;
+	  hora_en_segons++;
+	  fraccio_de_segon = 0;
 	}
+
+
+      if (bandera_pampallugues && (fraccio_de_pampalluga++ == TICS_PER_PAMPALLUGA))
+	{
+	  if ((PORTB & 0x80) == 0)
+	    PORTB = PORTB | 0x80;
+	  else
+	    PORTB = PORTB & 0x7F;
+	  fraccio_de_pampalluga = 0;
+	}
+
+      if (sw6)			/*Comprovam el sw6, si activat comencem a comptar */
+	{
+	  compta_analogic = ON;
+	}
+
       TMR0IF = 0;
     }
 
@@ -277,7 +274,6 @@ main ()
   lcd_putc (' ');
 
   /*Variables */
-  fracc_de_fracc_de_segon = 0;
   bandera_pampallugues = OFF;
   sw7 = OFF;
   bloc = REPOS;
