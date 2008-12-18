@@ -3,6 +3,7 @@ Variables i descripció:
 
 ################ ¡¡¡  WARNING !!! ############################
 
+* els sw2 i sw3 comparteixen bus amb el reset i l'rw de l'LCD
 * get_time_input ha d'agafar de teclat la hora, i setejarla a la var global.
 * get_preu_kbd() agafa un preu vàlid de teclat i el retorna.
 * printf_int(x,y,int) imprimeix un enter
