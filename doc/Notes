@@ -10,6 +10,7 @@ Variables i descripció:
 * ganancies_avui
 * kms_avui
 * consum_100km
+* explicar com hem calculat TICS_PER_SEGON i TICS_PER_30KM
 
 
 * Ara peta quan pitjem sw7, que misteriosament s'enva a LLIURE
