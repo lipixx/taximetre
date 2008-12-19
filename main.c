@@ -18,9 +18,10 @@ char bloc;
 
 short bandera_pampallugues;
 short comptador_hora;
-short compta_analogic;
 short am_pm;
 short comptador_import;
+
+char litres_inicialitzat;
 
 enum kjf0d49wf
   {
@@ -33,7 +34,8 @@ uint16_t hora_en_segons;
 
 char tarifa;
 
-int ganancies_avui, kms_avui, consum_100km;
+int ganancies_avui, kms_avui;
+uint16_t litres;
 uint16_t fraccio_de_segon, fraccio_de_pampalluga, fraccio_de_km;
 uint16_t import;
 uint16_t tics_pols;
@@ -79,7 +81,17 @@ ext_int ()
   clrf PCLATH;
 #endasm
 
-  if (0) /* FIXME */
+  if (litres_inicialitzat == 0 && sw6)
+    {
+      //Engegem conversio AD
+      litres_inicialitzat = 1;
+      PEIE = ON;
+      ADON = ON;
+      ADIF = OFF;
+      ADIE = ON;
+    }
+
+  if (0 && sw6) /* FIXME */
     {
       if (tics_pols >= TICS_PER_30KM_S)
 	tipus_de_fact = FACT_PER_TEMPS;
@@ -104,6 +116,12 @@ ext_int ()
     {
       tics_pols++;
 
+      if (sw6 && litres_inicialitzat != 0 && litres_inicialitzat <= 3)
+	{
+      	  if (litres_inicialitzat == 3) GO = 1;
+	  litres_inicialitzat++;
+	}
+
       if (comptador_hora && (fraccio_de_segon++ == TICS_PER_SEGON))
 	{
 	  if (hora_en_segons == 43200)
@@ -117,7 +135,7 @@ ext_int ()
 	    {
 	      ganancies_avui = 0;
 	      kms_avui = 0;
-	      consum_100km = 0;
+	      litres = 0;
 	    }
 
 	  hora_en_segons++;
@@ -134,33 +152,13 @@ ext_int ()
 	  fraccio_de_pampalluga = 0;
 	}
 
-      if (sw6)			/*Comprovam el sw6, si activat comencem a comptar */
-	{
-	  compta_analogic = ON;
-	}
-
       TMR0IF = 0;
     }
 
-  if (ADIF == 1 && ADIE == 1)	/*---------------------------------------------------------------*FIXME*/
+  if (ADIF == 1 && ADIE == 1)
     {
-      /*
-         SW6 = RA5 per comensar a comptar km's i combustible
-         SW5/Generador_LogicT0CKL = RA4 -- Encoder per el combustible
-         SW2:4 = RA1:3 per les tarifes T1,T2,T3
-         SW1/Entrada Analogica = RA0
-
-         Hem rebut final de conversio
-         Llegir resultat en els regs ADRESH:ADRESL */
-
-      if (compta_analogic == ON)
-	{
-	  if (comptador_import == ON)
-	    {
-	      import++;
-	      consum_100km++;
-	    }
-	}
+      //El diposit te 1024 litres
+      litres = (ADRESH << 8) & ADRESL;
       ADIF = 0;
     }
 
@@ -287,9 +285,11 @@ main ()
 
   /*Pins */
   TRISB = 0x01;			/*RB0 Input, RB1:7 Output
-				   TRISA = 0x3F;                        RA0:5 Pins coma a Input
-				   ADCON1 = 0x2F;               RA0:4 Pins com a Digital */
-
+				  TRISA = 0x3F;                        RA0:5 Pins coma a Input
+				  ADCON1 = 0x??;               RA0:4 Pins com a Analogic */
+  
+  TRISA = 0x3D;
+  PORTA_1 = 0;
   lcd_init ();
 
   /* Per algun motiu, el primer caràcter que enviem es perd.  */
@@ -304,7 +304,8 @@ main ()
   tarifa = 0;
   ganancies_avui = 0;
   kms_avui = 0;
-  consum_100km = 0;
+  litres = 0;
+  litres_inicialitzat = OFF;
   fraccio_de_segon = 0;
   fraccio_de_pampalluga = 0;
   fraccio_de_km = 0;
@@ -312,6 +313,7 @@ main ()
 
   /*Interrupcions */
   /*Timer preescaler de 16: */
+
   PSA = 0;
   PS0 = 1;
   PS1 = 1;
@@ -322,8 +324,29 @@ main ()
   TMR0IE = ON;
   INTE = OFF;
 
-  GIE = ON;
+  ADIF = OFF;
+  ADIE = OFF;
 
+  PEIE = OFF;
+
+  //Sortida de AD
+  CHS0 = 0;
+  CHS1 = 0;
+  CHS2 = 0;
+
+  //Tensio referencia i
+  //entrades com analogiques
+ #if 0
+  PCFG0 = 0;
+  PCFG1 = 0;
+  PCFG2 = 0;
+  PCFG3 = 1;
+#endif
+  //Llegir normal
+  ADFM = 1;
+
+  GIE = ON;
+ 
   while (1)
     {
     canvia_d_estat:
@@ -439,7 +462,7 @@ main ()
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "Consum 100km:");
-	    printf_int (0, 0, consum_100km);
+	    //    printf_int (0, 0, litres);
 	    sw7 = OFF;
 	    while (!sw7);
 
