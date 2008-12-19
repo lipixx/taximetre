@@ -360,7 +360,7 @@ main ()
 	{
 	case LLIURE:
 	  lcd_clear ();
-
+	  printf_xy (0, 1, "Lliure");
 	  led_bandera (BANDERA_ON);
 	  print_tarifa (0);	/*Netejem display 7 segments (indic. tarifa) */
 	  sw7 = OFF;
@@ -459,20 +459,24 @@ main ()
 	    sw7 = OFF;
 	    INTE = ON;
 	    while (!sw7);
+	    INTE = OFF;
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "Kms avui:");
 	    printf_int (0, 0, kms_avui);
 	    sw7 = OFF;
+	    INTE = ON;
 	    while (!sw7);
+	    INTE = OFF;
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "Consum 100km:");
-	    //    printf_int (0, 0, litres);
+	    printf_int (0, 0, litres);
 	    sw7 = OFF;
+	    INTE = ON;
 	    while (!sw7);
-
 	    INTE = OFF;
+
 	    printf_xy (0, 1, "C=Set tarifes");
 	    printf_xy (0, 0, "else goto REPOS");
 
@@ -561,8 +565,10 @@ main ()
 	case OCUPAT:
 	  //ROBERT
 	  lcd_clear ();
+	  printf_xy (0, 1, "Ocupat");
 	  import = (tarifa == 3 ? tarifa3 : tarifa1_2[tarifa - 1])[INDEX_PREU_BAIXADA_BANDERA];	/* FIXME: resta supèrflua */
 	  comptador_import = ON;	/* Demanem a l'RSI que incrementi 'import' */
+
 	  sw7 = OFF;
 	  INTE = ON;
 	  while (!sw7)
@@ -583,7 +589,7 @@ main ()
 	    char suplements_emprats = 0;
 	    led_bandera (BANDERA_PAMPALLUGUES_);
 	    print_tarifa (4);
-
+	    printf_xy (0, 1, "Import");
 	    sw5_inicial = sw5;
 
 	    while (1)
