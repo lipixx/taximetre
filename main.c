@@ -31,6 +31,7 @@ enum kjf0d49wf
 short tipus_de_fact;
 
 uint16_t hora_en_segons;
+uint16_t hora_darrer_sw7;
 
 char tarifa;
 
@@ -108,7 +109,11 @@ ext_int ()
 
   if (INTF == 1 && INTE == 1)
     {
-      sw7 = ON;
+      if (hora_darrer_sw7 != hora_en_segons)
+	{
+	  sw7 = ON;
+	  hora_darrer_sw7 = hora_en_segons;
+	}
       INTF = 0;
     }
 
@@ -123,7 +128,7 @@ ext_int ()
 	  litres_inicialitzat++;
 	}
 
-      if (comptador_hora && (fraccio_de_segon++ == TICS_PER_SEGON))
+      if ((fraccio_de_segon++ == TICS_PER_SEGON))
 	{
 	  if (hora_en_segons == 43200)
 	    {
