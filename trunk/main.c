@@ -24,10 +24,10 @@ short comptador_import;
 char litres_inicialitzat;
 
 enum kjf0d49wf
-  {
-    FACT_PER_TEMPS,
-    FACT_PER_POLSOS
-  };
+{
+  FACT_PER_TEMPS,
+  FACT_PER_POLSOS
+};
 short tipus_de_fact;
 
 uint16_t hora_en_segons;
@@ -91,7 +91,7 @@ ext_int ()
       ADIE = ON;
     }
 
-  if (0 && sw6) /* FIXME */
+  if (0 && sw6)			/* FIXME */
     {
       if (tics_pols >= TICS_PER_30KM_S)
 	tipus_de_fact = FACT_PER_TEMPS;
@@ -118,7 +118,8 @@ ext_int ()
 
       if (sw6 && litres_inicialitzat != 0 && litres_inicialitzat <= 3)
 	{
-      	  if (litres_inicialitzat == 3) GO = 1;
+	  if (litres_inicialitzat == 3)
+	    GO = 1;
 	  litres_inicialitzat++;
 	}
 
@@ -285,9 +286,9 @@ main ()
 
   /*Pins */
   TRISB = 0x01;			/*RB0 Input, RB1:7 Output
-				  TRISA = 0x3F;                        RA0:5 Pins coma a Input
-				  ADCON1 = 0x??;               RA0:4 Pins com a Analogic */
-  
+				   TRISA = 0x3F;                        RA0:5 Pins coma a Input
+				   ADCON1 = 0x??;               RA0:4 Pins com a Analogic */
+
   TRISA = 0x3D;
   PORTA_1 = 0;
   lcd_init ();
@@ -336,7 +337,7 @@ main ()
 
   //Tensio referencia i
   //entrades com analogiques
- #if 0
+#if 0
   PCFG0 = 0;
   PCFG1 = 0;
   PCFG2 = 0;
@@ -346,7 +347,7 @@ main ()
   ADFM = 1;
 
   GIE = ON;
- 
+
   while (1)
     {
     canvia_d_estat:
@@ -588,7 +589,7 @@ main ()
 		    ganancies_avui += import;
 		    goto canvia_d_estat;
 		  }
-		
+
 		c = keyScan_nobloca ();
 		if (c != 0x80)
 		  {
