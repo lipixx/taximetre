@@ -92,7 +92,7 @@ ext_int ()
       ADIE = ON;
     }
 
-  if (0 && sw6)			/* FIXME */
+  if (TMR1IF == 1 && TMR1IE == 1 && sw6)
     {
       if (tics_pols >= TICS_PER_30KM_S)
 	tipus_de_fact = FACT_PER_TEMPS;
@@ -328,6 +328,14 @@ main ()
   TMR0 = 0;			/*Reestablim Contador */
   TMR0IF = 0;
   TMR0IE = ON;
+  TMR1IE = 1;
+
+  TMR1CS = 1;
+  T1CKPS0 = 0;
+  T1CKPS1 = 0;
+  T1SYNC_ = 1;
+  TMR1ON = 1;
+
   INTE = OFF;
 
   ADIF = OFF;
