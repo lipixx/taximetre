@@ -227,6 +227,9 @@ lcd_send_byte(0, 0x80 | address);
 //-----------------------------
 void lcd_putc(char c)
 {
+  int tmpGIE;
+  tmpGIE = GIE;
+  GIE = 0;
  switch(c)
    {
     case '\f':
@@ -243,9 +246,10 @@ void lcd_putc(char c)
        break;
 
     default:
-       lcd_send_byte(1,c);
-       break;
+      lcd_send_byte(1,c);
+      break;
    }
+ GIE = tmpGIE;
 }
 
 //------------------------------
