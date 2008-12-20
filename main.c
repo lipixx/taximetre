@@ -58,7 +58,7 @@ static inline void printf_xy_import (int x, int y, uint16_t s);
 static void printf_xy_hora (int x, int y);
 static void lcd_clear ();
 static inline void led_bandera (char status);
-static inline void printf_int (int x, int y, uint16_t s);
+static void printf_int (int x, int y, uint16_t s);
 inline void suplement_ascii_to_index (char k);
 
 //Codi
@@ -149,7 +149,8 @@ ext_int ()
 	}
 
 
-      if (bandera_pampallugues && (fraccio_de_pampalluga++ == TICS_PER_PAMPALLUGA))
+      if (bandera_pampallugues
+	  && (fraccio_de_pampalluga++ == TICS_PER_PAMPALLUGA))
 	{
 	  if ((PORTB & 0x80) == 0)
 	    PORTB = PORTB | 0x80;
@@ -316,7 +317,7 @@ main ()
   fraccio_de_pampalluga = 0;
   fraccio_de_km = 0;
   am_pm = 0;
-
+  tics_pols = 0;
   /*Interrupcions */
   /*Timer preescaler de 16: */
 
@@ -828,7 +829,8 @@ end_gtime:
 	hora_en_hores -= 12;
       }
     hora_en_segons =
-      hora_en_hores * 3600 + (uint16_t) (hora[3] - '0') * 600 + (uint16_t) (hora[4] - '0') * 60;
+      hora_en_hores * 3600 + (uint16_t) (hora[3] - '0') * 600 +
+      (uint16_t) (hora[4] - '0') * 60;
   }
 }
 
@@ -844,10 +846,11 @@ scanf_xy (char x, char y, char *buffer, char len)
     buffer[i] = lcd_getc (x + i, y);
 }
 
-static inline void
+static void
 printf_int (int x, int y, uint16_t s)
 {
   signed int i;
+  lcd_gotoxy (0, 0);
   for (i = 4; i >= 0; i--)
     {
       printf_xy (x + i, y, (s % 10) + '0');
