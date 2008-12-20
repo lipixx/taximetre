@@ -58,7 +58,7 @@ static inline void printf_xy_import (int x, int y, uint16_t s);
 static void printf_xy_hora (int x, int y);
 static void lcd_clear ();
 static inline void led_bandera (char status);
-static void printf_int (int x, int y, uint16_t s);
+static inline void printf_int (int x, int y, uint16_t s);
 inline void suplement_ascii_to_index (char k);
 
 //Codi
@@ -846,14 +846,17 @@ scanf_xy (char x, char y, char *buffer, char len)
     buffer[i] = lcd_getc (x + i, y);
 }
 
-static void
+static inline void
 printf_int (int x, int y, uint16_t s)
 {
+  int tmpGIE;
   signed int i;
-  lcd_gotoxy (0, 0);
+  tmpGIE = GIE;
+  GIE = 0;
   for (i = 4; i >= 0; i--)
     {
       printf_xy (x + i, y, (s % 10) + '0');
       s /= 10;
     }
+  GIE = tmpGIE;
 }
