@@ -149,8 +149,7 @@ ext_int ()
 	}
 
 
-      if (bandera_pampallugues
-	  && (fraccio_de_pampalluga++ == TICS_PER_PAMPALLUGA))
+      if (bandera_pampallugues && (fraccio_de_pampalluga++ == TICS_PER_PAMPALLUGA))
 	{
 	  if ((PORTB & 0x80) == 0)
 	    PORTB = PORTB | 0x80;
@@ -829,8 +828,7 @@ end_gtime:
 	hora_en_hores -= 12;
       }
     hora_en_segons =
-      hora_en_hores * 3600 + (uint16_t) (hora[3] - '0') * 600 +
-      (uint16_t) (hora[4] - '0') * 60;
+      hora_en_hores * 3600 + (uint16_t) (hora[3] - '0') * 600 + (uint16_t) (hora[4] - '0') * 60;
   }
 }
 
