@@ -61,6 +61,35 @@ static inline void led_bandera (char status);
 static inline void printf_int (int x, int y, uint16_t s);
 inline void suplement_ascii_to_index (char k);
 
+uint16_t
+mul (uint16_t a, uint16_t b)
+{
+ uint16_t r, i;
+ r = 0;
+
+ for (i = 0; i < a; i++)
+   r += b;
+
+ return r;
+}
+
+uint16_t
+div (uint16_t n, uint16_t d)
+{
+ uint16_t i;
+
+ for (i = 0; n >= d; i++)
+   n -= d;
+
+ return i;
+}
+
+uint16_t
+mod (uint16_t n, uint16_t d)
+{
+ return n - mul (div (n, d), d);
+}
+
 //Codi
 #int_global
 void
@@ -240,21 +269,22 @@ lcd_clear ()
 static void
 printf_xy_hora (int x, int y)
 {
-  unsigned long int s;
+  uint16_t s;
   s = hora_en_segons;
 
   x += 4;
-  printf_xy (x--, y, (s % 10) + '0');
-  s /= 10;
-  printf_xy (x--, y, (s % 6) + '0');
-  s /= 6;
+  printf_xy(x--, y, (mod(s,10)) + '0');
+  s = div(s,10);
 
+  printf_xy (x--, y, (mod(s,6)) + '0');
+  s = div(s,6);
+  
   printf_xy (x--, y, ':');
   if (am_pm)
     s += 12;
-
-  printf_xy (x--, y, (s % 10) + '0');
-  printf_xy (x, y, (s / 10) + '0');
+  
+  printf_xy (x--, y, (mod(s,10)) + '0');
+  printf_xy (x, y, div(s,10) + '0');
 }
 
 static inline void
@@ -360,7 +390,7 @@ main ()
   ADFM = 1;
 
   GIE = ON;
-
+ 
   while (1)
     {
     canvia_d_estat:
