@@ -8,7 +8,7 @@
 
 #define LCD_SIZE_X 16
 #define LCD_SIZE_Y  2
-#define X_HORA	   11
+#define X_HORA	    8
 #define Y_HORA      1
 
 #define LLIURE		0

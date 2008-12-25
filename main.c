@@ -20,6 +20,7 @@ short bandera_pampallugues;
 short comptador_hora;
 short am_pm;
 short comptador_import;
+short tipus_de_fact;
 
 char litres_inicialitzat;
 
@@ -28,7 +29,6 @@ enum kjf0d49wf
   FACT_PER_TEMPS,
   FACT_PER_POLSOS
 };
-short tipus_de_fact;
 
 uint16_t hora_en_segons;
 uint16_t hora_darrer_sw7;
@@ -58,36 +58,36 @@ static inline void printf_xy_import (int x, int y, uint16_t s);
 static void printf_xy_hora (int x, int y);
 static void lcd_clear ();
 static inline void led_bandera (char status);
-static inline void printf_int (int x, int y, uint16_t s);
+static inline void printf_int (int x, int y, uint16_t s, char ndigits);
 inline void suplement_ascii_to_index (char k);
 
 uint16_t
 mul (uint16_t a, uint16_t b)
 {
- uint16_t r, i;
- r = 0;
+  uint16_t r, i;
+  r = 0;
 
- for (i = 0; i < a; i++)
-   r += b;
+  for (i = 0; i < a; i++)
+    r += b;
 
- return r;
+  return r;
 }
 
 uint16_t
 div (uint16_t n, uint16_t d)
 {
- uint16_t i;
+  uint16_t i;
 
- for (i = 0; n >= d; i++)
-   n -= d;
+  for (i = 0; n >= d; i++)
+    n -= d;
 
- return i;
+  return i;
 }
 
 uint16_t
 mod (uint16_t n, uint16_t d)
 {
- return n - mul (div (n, d), d);
+  return n - mul (div (n, d), d);
 }
 
 //Codi
@@ -178,7 +178,8 @@ ext_int ()
 	}
 
 
-      if (bandera_pampallugues && (fraccio_de_pampalluga++ == TICS_PER_PAMPALLUGA))
+      if (bandera_pampallugues
+	  && (fraccio_de_pampalluga++ == TICS_PER_PAMPALLUGA))
 	{
 	  if ((PORTB & 0x80) == 0)
 	    PORTB = PORTB | 0x80;
@@ -269,22 +270,28 @@ lcd_clear ()
 static void
 printf_xy_hora (int x, int y)
 {
+  /*
+     La funcio es generica, funcionara tant
+     si tenim posat les 12h o les 24h.. sempre
+     i quan a la RSI es posi a 0 hora_en_segons
+     quan pertoqui.
+     s mod 60 = segon actual
+     (s div 60) mod 60 = minut actual 
+     (s div 3600) mod 23 = hora actual
+   */
+
   uint16_t s;
   s = hora_en_segons;
 
-  x += 4;
-  printf_xy(x--, y, (mod(s,10)) + '0');
-  s = div(s,10);
+  printf_xy (x + 2, y, ':');
+  printf_xy (x + 5, y, ':');
 
-  printf_xy (x--, y, (mod(s,6)) + '0');
-  s = div(s,6);
-  
-  printf_xy (x--, y, ':');
-  if (am_pm)
-    s += 12;
-  
-  printf_xy (x--, y, (mod(s,10)) + '0');
-  printf_xy (x, y, div(s,10) + '0');
+  printf_int (x, y, mod (div (s, 3600), 23), 2);
+  x += 3;
+  printf_int (x, y, mod (div (s, 60), 60), 2);
+  x += 3;
+  printf_int (x, y, mod (s, 60), 2);
+
 }
 
 static inline void
@@ -347,6 +354,7 @@ main ()
   fraccio_de_km = 0;
   am_pm = 0;
   tics_pols = 0;
+
   /*Interrupcions */
   /*Timer preescaler de 16: */
 
@@ -390,7 +398,7 @@ main ()
   ADFM = 1;
 
   GIE = ON;
- 
+
   while (1)
     {
     canvia_d_estat:
@@ -493,7 +501,7 @@ main ()
 	    //Comencem a mostrar dades estadistiques al taxista
 	    lcd_clear ();
 	    printf_xy (0, 1, "Fact. avui:");
-	    printf_int (0, 0, ganancies_avui);
+	    printf_int (0, 0, ganancies_avui, 4);
 	    sw7 = OFF;
 	    INTE = ON;
 	    while (!sw7);
@@ -501,7 +509,7 @@ main ()
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "Kms avui:");
-	    printf_int (0, 0, kms_avui);
+	    printf_int (0, 0, kms_avui, 4);
 	    sw7 = OFF;
 	    INTE = ON;
 	    while (!sw7);
@@ -509,14 +517,14 @@ main ()
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "Consum 100km:");
-	    printf_int (0, 0, litres);
+	    printf_int (0, 0, litres, 4);
 	    sw7 = OFF;
 	    INTE = ON;
 	    while (!sw7);
 	    INTE = OFF;
 
 	    printf_xy (0, 1, "C=Set tarifes");
-	    printf_xy (0, 0, "else goto REPOS");
+	    printf_xy (0, 0, "else got REPOS");
 
 	    c = keyScan ();
 	    if (c != 'C')
@@ -695,20 +703,19 @@ ini_funcio_gpreu:
 	    x--;
 	  printf_xy (x, 0, '0');
 	}
-      else
-	if (i == 'C')
-	  goto end_gpreu;
-	{
-	  //Si error, ometem el caracter polsat
-	  if (i < '0' || i > '9')
-	    continue;
+      else if (i == 'C')
+	goto end_gpreu;
+      {
+	//Si error, ometem el caracter polsat
+	if (i < '0' || i > '9')
+	  continue;
 
-	  printf_xy (x, 0, i);
+	printf_xy (x, 0, i);
+	x++;
+
+	if (x == 2)
 	  x++;
-
-	  if (x == 2)
-	    x++;
-	}
+      }
     }
 
   sw7 = OFF;
@@ -792,7 +799,7 @@ bucle_time:
 	      continue;
 	    }
 
-	  //Hem de fer que no es puguin fer mes de 12:59
+	  //Hem de fer que no es puguin fer mes de 23:59
 	  switch (x)
 	    {
 	    case 0:
@@ -860,7 +867,8 @@ end_gtime:
 	hora_en_hores -= 12;
       }
     hora_en_segons =
-      hora_en_hores * 3600 + (uint16_t) (hora[3] - '0') * 600 + (uint16_t) (hora[4] - '0') * 60;
+      hora_en_hores * 3600 +
+      (((uint16_t) (hora[3] - '0') * 10 + (uint16_t) (hora[4] - '0')) * 60);
   }
 }
 
@@ -877,16 +885,13 @@ scanf_xy (char x, char y, char *buffer, char len)
 }
 
 static inline void
-printf_int (int x, int y, uint16_t s)
+printf_int (int x, int y, uint16_t s, int ndigits)
 {
-  int tmpGIE;
   signed int i;
-  tmpGIE = GIE;
-  GIE = 0;
-  for (i = 4; i >= 0; i--)
+  x += ndigits - 1;
+  for (i = ndigits; i > 0; i--)
     {
-      printf_xy (x + i, y, (s % 10) + '0');
-      s /= 10;
+      printf_xy (x--, y, mod (s, 10) + '0');
+      s = div (s, 10);
     }
-  GIE = tmpGIE;
 }
