@@ -656,8 +656,8 @@ ini_funcio_gpreu:
       lcd_gotoxy (x, 0);
       i = keyScan ();
 
-      //Opcio de rectificar amb la tecla C
-      if (i == 'C')
+      //Opcio de rectificar amb la tecla B de Borrar
+      if (i == 'B')
 	{
 	  if (x == 3)
 	    x -= 2;
@@ -666,6 +666,8 @@ ini_funcio_gpreu:
 	  printf_xy (x, 0, '0');
 	}
       else
+	if (i == 'C')
+	  goto end_gpreu;
 	{
 	  //Si error, ometem el caracter polsat
 	  if (i < '0' || i > '9')
