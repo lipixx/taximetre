@@ -286,12 +286,14 @@ printf_xy_hora (int x, int y)
   printf_xy (x + 2, y, ':');
   printf_xy (x + 5, y, ':');
 
-  printf_int (x, y, mod (div (s, 3600), 23), 2);
-  x += 3;
-  printf_int (x, y, mod (div (s, 60), 60), 2);
-  x += 3;
+  x += 6;
   printf_int (x, y, mod (s, 60), 2);
-
+  x -= 3;
+  s = div (s, 60);
+  printf_int (x, y, mod (s, 60), 2);
+  x -= 3;
+  s = div (s, 60);
+  printf_int (x, y, mod (s, 23), 2);
 }
 
 static inline void
