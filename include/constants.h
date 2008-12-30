@@ -51,7 +51,7 @@ static const uint16_t suplement_index_to_preu[] =
 /* Polsos per volta */
 #define POLSOS_PER_VOLTA	1
 
-#define TICS_PER_SEGON		1221
+#define TICS_PER_SEGON		3//1221
 #define TICS_PER_PAMPALLUGA	TICS_PER_SEGON
 /* PI * TICS_PER_SEGON * POLSOS_PER_VOLTA 1/m * 8.333 m/s */
 #define TICS_PER_30KM_S		(460 * POLSOS_PER_VOLTA)

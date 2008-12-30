@@ -1,0 +1,59 @@
+Generador de polsos (velocímetre, generador lògic):
+
+1. Activar JP8, rebrem les interrupcions per RC0/T1CKL
+2. Les interrupcions es rebran per flag TMR1IF
+3. S'ha d'actualitzar a cada interrupció:
+        · Velocitat_instantània
+        · kms_avui (kms recorreguts POLSOS_PER_KM)
+        · Activar FACT_PER_POLSOS xor FACT_PER_TEMPS depenent
+          de si anem a >30km/h o no
+        · Mitjana de combustible cada 100km
+
+###############################################################
+Simulador de la boia de combustible (generador analògic):
+
+1. Activar RA0/AN0 amb el JP5.
+2. Fer que el generador analògic sigui el potenciòmetre en lloc del
+fotoresistor mitjançant el JP7.
+3. Per mirar quin nivell tenim:
+       · Llençem la conversió i esperem la interrupció:
+          1. Iniciam la conversió AD a RA0/AN0
+          2. Esperem temps de conversió, ho podem fer
+             mitjançant una interrupció al flag adif
+          3. Agafar valor: litres = (ADRESH << 8) & ADRESL;
+
+
+######################################################################
+ATENCIO: ON S'INCREMENTA IMPORT? NO HO HE TROBAT.
+Crec que hauria de ser dina la RSI, amb el flag comptador_import = ON;
+
+rsi {
+      .....
+      timer0 rsi{
+              ..........
+              if (comptador_import) //Ho podem limitar a 1seg.
+                {
+                  if (velocitat > 30)
+                       import += (preu_per_kmh*velocitat_instantania)
+                  else
+                       import += preu_per_segon;
+                }
+      }
+}
+
+
+Variables noves o aclaració:
+############################
+preu_per_kmh = Serveix per multiplicar per la velocitat i obtenir
+               un increment per l'import.
+
+preu_per_segon = Serveix per incrementar import respecte el temps.
+velocitat_instantania = Serveix per saber quina velocitat portem
+                        en tot moment en que el generador de polsos
+                        esta actiu (TMR1IF).
+litres = Serveix per sebre quan feim la conversio AD, quants de litres
+         hi ha al dipòsit.
+
+consum_100km = Cada 100km (N polsos dins TMR1IF), farem:
+               consum_100km = (consum_100km + (litres/100))/2
+

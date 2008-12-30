@@ -346,6 +346,8 @@ main ()
   bloc = REPOS;
   hora_en_segons = 0;
   comptador_hora = ON;
+  comptador_import = OFF;
+  import = 0;
   tarifa = 0;
   ganancies_avui = 0;
   kms_avui = 0;
