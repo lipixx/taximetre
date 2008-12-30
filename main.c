@@ -300,15 +300,15 @@ static inline void
 printf_xy_import (int x, int y, uint16_t s)
 {
   x += 4;
-  printf_xy (x--, y, (s % 10) + '0');
-  s /= 10;
-  printf_xy (x--, y, (s % 10) + '0');
-  s /= 10;
+  printf_xy (x--, y, mod(s,10) + '0');
+  s = div(s,10);
+  printf_xy (x--, y, mod(s,10) + '0');
+  s = div(s,10);
 
   printf_xy (x--, y, '.');
 
-  printf_xy (x--, y, (s % 10) + '0');
-  printf_xy (x, y, (s / 10) + '0');
+  printf_xy (x--, y, mod(s,10) + '0');
+  printf_xy (x, y, div(s,10) + '0');
 }
 
 static inline void
