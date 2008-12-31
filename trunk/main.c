@@ -45,7 +45,7 @@ uint16_t tics_pols;
 #define INDEX_PREU_PER_KM		1
 #define INDEX_HORA_DESPERA		2
 #define INDEX_SUPLEMENT_HORARI_NOCT	3	/* nomes amb la 3 */
-uint16_t tarifa1_2[2][3];
+uint16_t tarifa1_2[3][2];
 uint16_t tarifa3[4];
 
 /*Capceleres de funcions*/
@@ -570,27 +570,27 @@ main ()
 	    //Set Preus
 	    lcd_clear ();
 	    printf_xy (0, 1, "T1 - B.b.:");
-	    tarifa1_2[0][INDEX_PREU_BAIXADA_BANDERA] = get_preu_kbd ();
+	    tarifa1_2[INDEX_PREU_BAIXADA_BANDERA][0] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T1 - P/Km:");
-	    tarifa1_2[0][INDEX_PREU_PER_KM] = get_preu_kbd ();
+	    tarifa1_2[INDEX_PREU_PER_KM][0] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T1 - H.Espera:");
-	    tarifa1_2[0][INDEX_HORA_DESPERA] = get_preu_kbd ();
+	    tarifa1_2[INDEX_HORA_DESPERA][0] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T2 - B.b.:");
-	    tarifa1_2[1][INDEX_PREU_BAIXADA_BANDERA] = get_preu_kbd ();
+	    tarifa1_2[INDEX_PREU_BAIXADA_BANDERA][1] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T2 - P/Km:");
-	    tarifa1_2[1][INDEX_PREU_PER_KM] = get_preu_kbd ();
+	    tarifa1_2[INDEX_PREU_PER_KM][1] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T2 - H.Espera:");
-	    tarifa1_2[1][INDEX_HORA_DESPERA] = get_preu_kbd ();
+	    tarifa1_2[INDEX_HORA_DESPERA][1] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T3 - B.b.:");
@@ -616,7 +616,9 @@ main ()
 	  //ROBERT
 	  lcd_clear ();
 	  printf_xy (0, 1, "Ocupat");
-	  import = (tarifa == 3 ? tarifa3 : tarifa1_2[tarifa - 1])[INDEX_PREU_BAIXADA_BANDERA];	/* FIXME: resta supèrflua */
+	  import = (tarifa == 3 ?
+		    tarifa3[INDEX_PREU_BAIXADA_BANDERA] :
+		    tarifa1_2[INDEX_PREU_BAIXADA_BANDERA][tarifa - 1]);	/* FIXME: resta supèrflua */
 	  comptador_import = ON;	/* Demanem a l'RSI que incrementi 'import' */
 
 	  sw7 = OFF;
