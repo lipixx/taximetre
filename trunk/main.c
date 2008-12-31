@@ -16,19 +16,19 @@
 short sw7;
 char bloc;
 
-short bandera_pampallugues;
-short comptador_hora;
-short am_pm;
-short comptador_import;
-short tipus_de_fact;
-
-char litres_inicialitzat;
-
 enum kjf0d49wf
 {
   FACT_PER_TEMPS,
   FACT_PER_POLSOS
 };
+
+short bandera_pampallugues;
+short comptador_hora;
+short am_pm;
+short comptador_import;
+short tipus_de_fact = FACT_PER_TEMPS;
+
+char litres_inicialitzat;
 
 uint16_t hora_en_segons;
 uint16_t hora_darrer_sw7;
@@ -128,9 +128,11 @@ ext_int ()
       else
 	tipus_de_fact = FACT_PER_POLSOS;
       tics_pols = 0;
-
+      
       if (fraccio_de_km++ == POLSOS_PER_KM)
 	{
+	  if (comptador_import && (tipus_de_fact == FACT_PER_POLSOS))
+   	    import += (tarifa == 3 ? tarifa3[INDEX_PREU_PER_KM] : tarifa1_2[INDEX_PREU_PER_KM][tarifa - 1]);
 	  kms_avui++;
 	  fraccio_de_km = 0;
 	}
@@ -138,6 +140,7 @@ ext_int ()
 
   if (INTF == 1 && INTE == 1)
     {
+      /* Per filtrar els rebots.  */
       if (hora_darrer_sw7 != hora_en_segons)
 	{
 	  sw7 = ON;
@@ -172,7 +175,14 @@ ext_int ()
 	      kms_avui = 0;
 	      litres = 0;
 	    }
-
+	  
+	  if (comptador_import && (tipus_de_fact == FACT_PER_TEMPS))
+	    /* FIXME: La tarifa és per hora d'espera i aqui només ha passat 1s.  Caldria
+	       que la tarifa fós per segons, o com a mínim per minuts.  Si no no podem
+	       facturar res per a trajectes de menys d'1h.
+	    */
+	    import += (tarifa == 3 ? tarifa3[INDEX_HORA_DESPERA] : tarifa1_2[INDEX_HORA_DESPERA][tarifa - 1]);
+	  
 	  hora_en_segons++;
 	  fraccio_de_segon = 0;
 	}
