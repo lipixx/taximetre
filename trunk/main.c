@@ -17,10 +17,10 @@ short sw7;
 char bloc;
 
 enum kjf0d49wf
-{
-  FACT_PER_TEMPS,
-  FACT_PER_POLSOS
-};
+  {
+    FACT_PER_TEMPS,
+    FACT_PER_POLSOS
+  };
 
 short bandera_pampallugues;
 short comptador_hora;
@@ -28,7 +28,22 @@ short am_pm;
 short comptador_import;
 short tipus_de_fact = FACT_PER_TEMPS;
 
-char litres_inicialitzat;
+enum possibles_estats_destat_lectura_litres
+  {
+    LECTURA_LITRES_REPOS,
+    LECTURA_LITRES_ESPERA1,
+    LECTURA_LITRES_ESPERA2,
+    LECTURA_LITRES_INICIA_CONVERSIO,
+    LECTURA_LITRES_CONVERSIO_FINALITZADA
+  };
+char estat_lectura_litres = LECTURA_LITRES_REPOS;
+
+enum possibles_estats_de_la_lectura_de_litres_es_per_a
+  {
+    LECTURA_LITRES_INICIAL,
+    LECTURA_LITRES_ACTUAL
+  };
+short la_lectura_de_litres_es_per_a;
 
 uint16_t hora_en_segons;
 uint16_t hora_darrer_sw7;
@@ -36,7 +51,7 @@ uint16_t hora_darrer_sw7;
 char tarifa;
 
 int ganancies_avui, kms_avui;
-uint16_t litres;
+uint16_t litres, litres_inicial = 0;
 uint16_t fraccio_de_segon, fraccio_de_pampalluga, fraccio_de_km;
 uint16_t import;
 uint16_t tics_pols;
@@ -90,6 +105,17 @@ mod (uint16_t n, uint16_t d)
   return n - mul (div (n, d), d);
 }
 
+inline void
+engega_conversio_ad (short arg)
+{
+  la_lectura_de_litres_es_per_a = arg;
+  estat_lectura_litres = LECTURA_LITRES_ESPERA1;
+  PEIE = ON;
+  ADON = ON;
+  ADIF = OFF;
+  ADIE = ON;
+}
+
 //Codi
 #int_global
 void
@@ -111,17 +137,12 @@ ext_int ()
   clrf PCLATH;
 #endasm
 
-  if (litres_inicialitzat == 0 && sw6)
-    {
-      //Engegem conversio AD
-      litres_inicialitzat = 1;
-      PEIE = ON;
-      ADON = ON;
-      ADIF = OFF;
-      ADIE = ON;
-    }
+  /* L'activació d'sw6 per sí no genera cap interrupció, però qualssevol interrupció
+     és bona per atendre aquest esdeveniment.  */
+  if (sw6)
+    engega_conversio_ad (LECTURA_LITRES_INICIAL);
 
-  if (TMR1IF == 1 && TMR1IE == 1 && sw6)
+  if (TMR1IF == 1 && TMR1IE == 1)
     {
       if (tics_pols >= TICS_PER_30KM_S)
 	tipus_de_fact = FACT_PER_TEMPS;
@@ -153,13 +174,11 @@ ext_int ()
     {
       tics_pols++;
 
-      if (sw6 && litres_inicialitzat != 0 && litres_inicialitzat <= 3)
-	{
-	  if (litres_inicialitzat == 3)
-	    GO = 1;
-	  litres_inicialitzat++;
-	}
-
+      if (estat_lectura_litres == LECTURA_LITRES_INICIA_CONVERSIO)
+	GO = 1;
+      else if (estat_lectura_litres >= LECTURA_LITRES_ESPERA1)
+	estat_lectura_litres++;
+      
       if ((fraccio_de_segon++ == TICS_PER_SEGON))
 	{
 	  if (hora_en_segons == 43200)
@@ -173,7 +192,6 @@ ext_int ()
 	    {
 	      ganancies_avui = 0;
 	      kms_avui = 0;
-	      litres = 0;
 	    }
 	  
 	  if (comptador_import && (tipus_de_fact == FACT_PER_TEMPS))
@@ -205,6 +223,9 @@ ext_int ()
     {
       //El diposit te 1024 litres
       litres = (ADRESH << 8) & ADRESL;
+      if (la_lectura_de_litres_es_per_a == LECTURA_LITRES_INICIAL)
+	litres_inicial = litres;
+      estat_lectura_litres = LECTURA_LITRES_CONVERSIO_FINALITZADA;
       ADIF = 0;
     }
 
@@ -332,7 +353,7 @@ void
 main ()
 {
   /*
-     SW6 = RA5 per comensar a comptar km's i combustible
+     SW6 = RA5 per comensar a comptar combustible
      SW5 LLIURE!!  L'assignem a canvi d'estat en sortir de repòs
      SW2:4 = RA1:3 per les tarifes T1,T2,T3
      SW1/Entrada Analogica = RA0 boia
@@ -362,7 +383,6 @@ main ()
   ganancies_avui = 0;
   kms_avui = 0;
   litres = 0;
-  litres_inicialitzat = OFF;
   fraccio_de_segon = 0;
   fraccio_de_pampalluga = 0;
   fraccio_de_km = 0;
@@ -531,7 +551,18 @@ main ()
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "Consum 100km:");
-	    printf_int (0, 0, litres, 4);
+	    if (litres_inicial == 0)
+	      /* Encara no s'ha iniciat el comptador (via sw6).  */
+	      printf_int (0, 0, 0, 4);
+	    else
+	      {
+		engega_conversio_ad (LECTURA_LITRES_ACTUAL);
+		while (estat_lectura_litres != LECTURA_LITRES_CONVERSIO_FINALITZADA);
+		estat_lectura_litres = LECTURA_LITRES_REPOS;
+		
+		printf_int (0, 0, mul (100, div (litres - litres_inicial, kms_avui)), 4);
+	      }
+
 	    sw7 = OFF;
 	    INTE = ON;
 	    while (!sw7);
