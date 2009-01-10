@@ -176,7 +176,7 @@ ext_int ()
 
       if (estat_lectura_litres == LECTURA_LITRES_INICIA_CONVERSIO)
 	GO = 1;
-      else if (estat_lectura_litres >= LECTURA_LITRES_ESPERA1)
+      else if (estat_lectura_litres == LECTURA_LITRES_ESPERA1 || estat_lectura_litres == LECTURA_LITRES_ESPERA2)
 	estat_lectura_litres++;
       
       if ((fraccio_de_segon++ == TICS_PER_SEGON))
