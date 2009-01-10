@@ -157,6 +157,7 @@ ext_int ()
 	  kms_avui++;
 	  fraccio_de_km = 0;
 	}
+      TMR1IF = 0;
     }
 
   if (INTF == 1 && INTE == 1)
