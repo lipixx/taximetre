@@ -572,7 +572,7 @@ main ()
 	    INTE = OFF;
 
 	    printf_xy (0, 1, "C=Set tarifes");
-	    printf_xy (0, 0, "else got REPOS");
+	    printf_xy (0, 0, "else goto REPOS");
 
 	    c = keyScan ();
 	    if (c != 'C')
@@ -791,10 +791,11 @@ end_gpreu:
     scanf_xy (0, 0, preu, 5);
 
     //Preu en centims
-    return ((uint16_t) (preu[0] - '0')) * 1000
-      + ((uint16_t) (preu[1] - '0')) * 100
-      + ((uint16_t) (preu[3] - '0')) * 10
-      + ((uint16_t) (preu[4] - '0'));
+    return
+      mul ((uint16_t) (preu[0] - '0'), 1000) +
+      mul ((uint16_t) (preu[1] - '0'), 100) +
+      mul ((uint16_t) (preu[3] - '0'), 10) +
+      (uint16_t) (preu[4] - '0');
   }
 }
 
