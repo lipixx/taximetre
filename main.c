@@ -158,6 +158,8 @@ interrupcions ()
 	  kms_avui++;
 	  fraccio_de_km = 0;
 	}
+      TMR1L = 0xFE;
+      TMR1H = 0xFF;
       TMR1IF = 0;
     }
 
@@ -402,14 +404,17 @@ main ()
   TMR0 = 0;			/*Reestablim Contador */
   TMR0IF = 0;
   TMR0IE = ON;
+  TMR1IF = 0;
   TMR1IE = 1;
 
   TMR1CS = 1;
   T1CKPS0 = 0;
   T1CKPS1 = 0;
-  T1SYNC_ = 1;
   TMR1ON = 1;
-
+  //DEBUG
+  TMR1L = 0xFF;
+  TMR1H = 0xFF;
+  //END DEBUG
   INTE = OFF;
 
   ADIF = OFF;
