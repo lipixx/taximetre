@@ -110,7 +110,6 @@ engega_conversio_ad (short arg)
 {
   la_lectura_de_litres_es_per_a = arg;
   estat_lectura_litres = LECTURA_LITRES_ESPERA1;
-  PEIE = ON;
   ADON = ON;
   ADIF = OFF;
   ADIE = ON;
@@ -392,6 +391,10 @@ main ()
   am_pm = 0;
   tics_pols = 0;
 
+  tarifa1_2[INDEX_PREU_BAIXADA_BANDERA][0] = 200;
+  tarifa1_2[INDEX_PREU_PER_KM][0] = 250;
+  tarifa1_2[INDEX_HORA_DESPERA][0] = 300;
+
   /*Interrupcions */
   /*Timer preescaler de 16: */
 
@@ -416,7 +419,7 @@ main ()
   ADIF = OFF;
   ADIE = OFF;
 
-  PEIE = OFF;
+  PEIE = ON;
 
   //Sortida de AD
   CHS0 = 0;
