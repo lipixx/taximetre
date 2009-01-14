@@ -58,7 +58,7 @@ uint16_t tics_pols;
 
 #define INDEX_PREU_BAIXADA_BANDERA	0
 #define INDEX_PREU_PER_KM		1
-#define INDEX_HORA_DESPERA		2
+#define INDEX_PREU_PER_SEGON		2
 #define INDEX_SUPLEMENT_HORARI_NOCT	3	/* nomes amb la 3 */
 uint16_t tarifa1_2[3][2];
 uint16_t tarifa3[4];
@@ -197,11 +197,7 @@ interrupcions ()
 	    }
 	  
 	  if (comptador_import && (tipus_de_fact == FACT_PER_TEMPS))
-	    /* FIXME: La tarifa és per hora d'espera i aqui només ha passat 1s.  Caldria
-	       que la tarifa fós per segons, o com a mínim per minuts.  Si no no podem
-	       facturar res per a trajectes de menys d'1h.
-	    */
-	    import += (tarifa == 3 ? tarifa3[INDEX_HORA_DESPERA] : tarifa1_2[INDEX_HORA_DESPERA][tarifa - 1]);
+	    import += (tarifa == 3 ? tarifa3[INDEX_PREU_PER_SEGON] : tarifa1_2[INDEX_PREU_PER_SEGON][tarifa - 1]);
 	  
 	  hora_en_segons++;
 	  fraccio_de_segon = 0;
@@ -393,7 +389,7 @@ main ()
 
   tarifa1_2[INDEX_PREU_BAIXADA_BANDERA][0] = 200;
   tarifa1_2[INDEX_PREU_PER_KM][0] = 250;
-  tarifa1_2[INDEX_HORA_DESPERA][0] = 300;
+  tarifa1_2[INDEX_PREU_PER_SEGON][0] = 1;
 
   /*Interrupcions */
   /*Timer preescaler de 16: */
@@ -625,7 +621,7 @@ main ()
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T1 - H.Espera:");
-	    tarifa1_2[INDEX_HORA_DESPERA][0] = get_preu_kbd ();
+	    tarifa1_2[INDEX_PREU_PER_SEGON][0] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T2 - B.b.:");
@@ -637,7 +633,7 @@ main ()
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T2 - H.Espera:");
-	    tarifa1_2[INDEX_HORA_DESPERA][1] = get_preu_kbd ();
+	    tarifa1_2[INDEX_PREU_PER_SEGON][1] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T3 - B.b.:");
@@ -649,7 +645,7 @@ main ()
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T3 - H.Espera:");
-	    tarifa3[INDEX_HORA_DESPERA] = get_preu_kbd ();
+	    tarifa3[INDEX_PREU_PER_SEGON] = get_preu_kbd ();
 
 	    lcd_clear ();
 	    printf_xy (0, 1, "T3 - S. Noct:");
