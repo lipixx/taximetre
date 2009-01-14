@@ -27,7 +27,7 @@ short comptador_hora;
 short am_pm;
 short comptador_import;
 short tipus_de_fact = FACT_PER_TEMPS;
-
+short sw6_inhibit = 0;
 enum possibles_estats_destat_lectura_litres
   {
     LECTURA_LITRES_REPOS,
@@ -119,7 +119,7 @@ engega_conversio_ad (short arg)
 //Codi
 #int_global
 void
-ext_int ()
+interrupcions ()
 {
 #define W_OLD		0x20
 #define STATUS_OLD	0x21
@@ -139,8 +139,10 @@ ext_int ()
 
   /* L'activació d'sw6 per sí no genera cap interrupció, però qualssevol interrupció
      és bona per atendre aquest esdeveniment.  */
-  if (sw6)
+  if (sw6 && !sw6_inhibit){
+    sw6_inhibit = 1;
     engega_conversio_ad (LECTURA_LITRES_INICIAL);
+  }
 
   if (TMR1IF == 1 && TMR1IE == 1)
     {
