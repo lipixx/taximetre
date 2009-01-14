@@ -734,7 +734,6 @@ get_preu_kbd ()
   char x, i;
 
 ini_funcio_gpreu:
-  i = 0x80;
   x = 0;
 
   printf_xy (0, 0, "00,00");
@@ -792,9 +791,10 @@ end_gpreu:
     scanf_xy (0, 0, preu, 5);
 
     //Preu en centims
-    return ((long int) (preu[0] - '0')) * 1000
-      + ((long int) (preu[1] - '0')) * 100
-      + ((long int) (preu[3] - '0')) * 10 + ((long int) (preu[4] - '0'));
+    return ((uint16_t) (preu[0] - '0')) * 1000
+      + ((uint16_t) (preu[1] - '0')) * 100
+      + ((uint16_t) (preu[3] - '0')) * 10
+      + ((uint16_t) (preu[4] - '0'));
   }
 }
 
