@@ -1,14 +1,21 @@
 ///////////////////////////////////////////////////////////////////////
 /// PIC 16F87X HEADER FILE											///
 /// Versio 5 setembre 2008											///
-/// Autor: Pere Marès, Joan Climent, Joan Vidos, Joel Sala			///
+/// Autor: Pere Marès, Joan Climent, Joan Vidos, Joel Sala
 /// DEPARTAMENT d'ESAII												///
+/// Modificat per: Robert Millàn, Felip Moll - 16/01/2009
 ///////////////////////////////////////////////////////////////////////
 
 
 // HEADER FILE
 
 #device PIC16F876 
+/* Reservem l'espai que necessitem per guardar W, STATUS i PCLATH.
+   0x20, 0xa0, 0x120 i 0x1a0 serviràn per guardar l'W en el bank
+   corresponent. Posteriorment es canviarà de bank i es salvarà
+   a la posició 0x21 i 0x22 del bank0 l'STATUS i el PCLATH respectivament.
+   Per retornar es farà de manera inversa i es recollirà W d'on calgui.
+*/
 #reserve 0x20, 0x21, 0x22, 0xa0, 0x120, 0x1a0
 #list 
 /* Predefined:

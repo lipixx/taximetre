@@ -5,6 +5,7 @@
 /// DEPARTAMENT d'ESAII                                                                                         ///
 /// Codificacio  les funcions principals pel tractament del teclat      ///
 /// Compatibilitzat amb  proteus i la placa de desenvolupament          ///
+/// Modificat i millorat per: Robert Millàn, Felip Moll - 16/01/2009
 ///////////////////////////////////////////////////////////////////////
 
 
@@ -23,8 +24,9 @@ keyScan_nobloca ()			// Scan for keyboard press
   unsigned char keyCode = 0x80;
   unsigned char col, i, kbhit, temp;
 
-  // Guardar estado de *
+  // Guardar estat de *
   tmpTRISB = TRISB;
+  //Faltaven guardar certes variables
   tmpPORTB = PORTB;
   tmpRBPU = RBPU;
   tmpINTE = INTE;
@@ -82,7 +84,6 @@ keyScan_nobloca ()			// Scan for keyboard press
 	  kbhit = 1;;
 	}
       i++;
-//              i=(i%4);
 
     }
   if (temp == 0xF0)
@@ -113,6 +114,7 @@ keyScan_nobloca ()			// Scan for keyboard press
   i = (temp << 2) + col;
   keyCode = KeyCodeTable[i];
 
+  //Millora del codi que restaura els registres modificats
  end:
   TRISB = tmpTRISB;
   PORTB = tmpPORTB;

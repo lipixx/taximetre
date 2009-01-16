@@ -6,7 +6,8 @@
 /// Codificacio  les funcions principals pel tractament de l'lcd        ///
 /// Compatibilitzat amb  proteus i la placa de desenvolupament          ///
 /// Teniu en compte que la 'y' del lcd es: 1 o 2(linia)                         ///
-/// i la 'x': 0-15 (columna)                                                                            ///
+/// i la 'x': 0-15 (columna)
+/// Modificat i millorat per: Robert Millàn, Felip Moll - 16/01/2009                                                                            ///
 ///////////////////////////////////////////////////////////////////////
 
 
