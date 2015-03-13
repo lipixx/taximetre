@@ -1,0 +1,1 @@
+Aquest projecte és un taxímetre d'SDMI
